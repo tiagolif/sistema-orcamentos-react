@@ -1,0 +1,126 @@
+/* Estilos para o Formulário de Orçamento, reutilizando e adaptando o ClientForm.css */
+.form-container {
+  background-color: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 1200px;
+  margin: 2rem auto;
+}
+
+.form-container h2 {
+  font-size: var(--font-size-lg);
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.form-section {
+  margin-bottom: 1.5rem;
+}
+
+.form-section-title {
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.4rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  font-size: var(--font-size-base);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: #f7f9fb;
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-color);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Spans para o grid */
+.col-span-1 { grid-column: span 1; }
+.col-span-2 { grid-column: span 2; }
+.col-span-3 { grid-column: span 3; }
+.col-span-4 { grid-column: span 4; }
+.col-span-5 { grid-column: span 5; }
+.col-span-6 { grid-column: span 6; }
+.col-span-7 { grid-column: span 7; }
+.col-span-8 { grid-column: span 8; }
+.col-span-9 { grid-column: span 9; }
+.col-span-10 { grid-column: span 10; }
+.col-span-11 { grid-column: span 11; }
+.col-span-12 { grid-column: span 12; }
+
+/* Seção de Totais */
+.totals-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.total-row span:first-child, .total-row label {
+  font-weight: 600;
+  color: var(--text-color-light);
+}
+
+.total-row span:last-child {
+  font-weight: 600;
+  font-size: var(--font-size-md);
+}
+
+.total-row.input-row input {
+  max-width: 120px;
+  text-align: right;
+  background-color: white;
+}
+
+.total-row.final-total {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--primary-color);
+}
+
+.total-row.final-total span {
+  font-size: var(--font-size-lg);
+  color: var(--primary-color);
+}
+

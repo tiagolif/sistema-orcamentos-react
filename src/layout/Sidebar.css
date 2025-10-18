@@ -8,6 +8,7 @@
   padding: 1rem;
   color: white;
   transition: width 0.3s ease-in-out;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 
@@ -19,8 +20,9 @@
   width: 240px;
 }
 
-/* Esconde o texto quando a sidebar está recolhida */
-.sidebar.layout-collapsed .nav-text {
+.sidebar.layout-collapsed .nav-text,
+.sidebar.layout-collapsed .menu-toggle-icon,
+.sidebar.layout-collapsed .sidebar-company-name {
   display: none;
 }
 
@@ -41,36 +43,63 @@
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Espaçamento entre ícone e texto */
+  gap: 1rem;
   padding: 12px 24px;
   text-decoration: none;
-  color: #aeb7c0; /* Cor padrão para links inativos */
+  color: #aeb7c0;
   border-radius: 6px;
   font-size: var(--font-size-base);
   font-weight: 500;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-  white-space: nowrap; /* Impede que o texto quebre linha durante a transição */
+  white-space: nowrap;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-/* Efeito hover para links não ativos */
 .nav-link:not(.active):hover {
   background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff; /* Muda a cor do texto para branco no hover */
+  color: #ffffff;
 }
 
-/* Estilo do link ativo */
 .nav-link.active {
   background-color: var(--primary-color);
   font-weight: 600;
-  color: #ffffff; /* Garante que o texto do link ativo seja branco */
+  color: #ffffff;
+}
+
+.menu-item > .nav-link {
+  justify-content: space-between;
+}
+
+.menu-item > .nav-link > span {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.menu-toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.menu-item.open > .nav-link > .menu-toggle-icon {
+  transform: rotate(90deg);
 }
 
 .submenu {
   list-style: none;
-  padding-left: 1.5rem; /* Indentação do submenu */
-  margin-top: 0.5rem;
-  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  padding-left: 1.5rem;
   margin-left: 1.25rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.submenu.open {
+  max-height: 500px;
+  margin-top: 0.5rem;
 }
 
 .submenu .nav-link {
@@ -78,41 +107,49 @@
   font-size: 0.95em;
 }
 
-/* Estilo para o botão que abre o submenu */
-.sidebar-nav > li > .nav-link {
-  font-weight: 600; /* Torna os itens de menu principais mais proeminentes */
-}
-
-/* Sidebar Header */
+/* Header */
 .sidebar-header {
   padding: 1rem 0;
   margin-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  display: flex; /* Changed */
+  justify-content: space-between; /* Changed */
+  align-items: center; /* Changed */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .sidebar-company-name {
   font-size: 1rem;
   font-weight: 600;
   color: white;
-  margin-top: 0.75rem;
-  display: none; /* Oculto por padrão */
+  display: none;
 }
 
 .sidebar.layout-expanded .sidebar-company-name {
-  display: block; /* Visível apenas quando expandido */
+  display: block;
 }
 
 .sidebar-logo {
-  width: 40px; /* Tamanho quando recolhido */
+  width: 40px;
   height: auto;
-  transition: width 0.3s ease-in-out;
 }
 
-/* Quando a sidebar está expandida, o logo pode ser maior */
-.sidebar.layout-expanded .sidebar-logo {
-  width: 80px; 
+.sidebar-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #aeb7c0;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
 }

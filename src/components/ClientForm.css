@@ -95,7 +95,8 @@
 .form-group input,
 .form-group select,
 .form-group textarea {
-  width: 100%;
+  flex: 1; /* Permite que o campo cresça e encolha */
+  min-width: 0; /* Evita que o campo transborde */
   padding: 8px 12px;
   font-size: var(--font-size-base);
   border: 1px solid var(--border-color);

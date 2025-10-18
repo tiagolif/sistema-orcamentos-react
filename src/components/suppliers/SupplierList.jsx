@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import './SupplierList.css';
 
 const SupplierList = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSuppliers = async () => {
@@ -23,6 +25,26 @@ const SupplierList = () => {
     fetchSuppliers();
   }, []);
 
+  const handleEdit = (id) => {
+    navigate(`/fornecedores/editar/${id}`);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Tem certeza que deseja excluir este fornecedor?')) {
+      const { error } = await supabase
+        .from('suppliers')
+        .delete()
+        .match({ id });
+
+      if (error) {
+        setError(error.message);
+        console.error('Error deleting supplier:', error);
+      } else {
+        setSuppliers(suppliers.filter(supplier => supplier.id !== id));
+      }
+    }
+  };
+
   if (error) {
     return <div className="error-message">Erro ao carregar fornecedores: {error}</div>;
   }
@@ -40,12 +62,12 @@ const SupplierList = () => {
       <tbody>
         {suppliers.map(supplier => (
           <tr key={supplier.id}>
-            <td>{supplier.name}</td>
-            <td>{supplier.document}</td>
+            <td>{supplier.razao_social || supplier.nome_completo}</td>
+            <td>{supplier.cnpj || supplier.cpf}</td>
             <td>{supplier.email}</td>
             <td>
-              <button className="btn-action btn-edit">Editar</button>
-              <button className="btn-action btn-delete">Excluir</button>
+              <button onClick={() => handleEdit(supplier.id)} className="btn-action btn-edit">Editar</button>
+              <button onClick={() => handleDelete(supplier.id)} className="btn-action btn-delete">Excluir</button>
             </td>
           </tr>
         ))}

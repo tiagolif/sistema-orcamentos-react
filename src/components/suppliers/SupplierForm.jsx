@@ -57,19 +57,15 @@ export default function SupplierForm() {
     setStatus('Salvando...');
     setError('');
 
-    // 1. Create a clean copy of the data
     let submissionData = { ...formData };
 
-    // 2. Remove fields that are not relevant for the selected person type
     if (submissionData.tipo_pessoa === 'pf') {
-      // Remove PJ fields
       Object.keys(submissionData).forEach(key => {
         if (['razao_social', 'nome_fantasia', 'cnpj', 'inscricao_estadual', 'inscricao_municipal'].includes(key)) {
           submissionData[key] = null;
         }
       });
     } else { // 'pj'
-      // Remove PF fields
       Object.keys(submissionData).forEach(key => {
         if (['nome_completo', 'cpf', 'rg'].includes(key)) {
           submissionData[key] = null;
@@ -77,7 +73,6 @@ export default function SupplierForm() {
       });
     }
     
-    // 3. Remove any keys with empty strings, converting them to null
     Object.keys(submissionData).forEach(key => {
         if (submissionData[key] === '') {
             submissionData[key] = null;
@@ -133,15 +128,15 @@ const PessoaFisicaForm = ({ formData, handleChange }) => (
         <div className="form-section">
           <p className="form-section-title">Dados Pessoais</p>
           <div className="form-grid">
-            <div className="form-group col-span-6">
+            <div className="form-group col-span-12">
               <label htmlFor="nome_completo">Nome Completo</label>
               <input id="nome_completo" name="nome_completo" type="text" value={formData.nome_completo} onChange={handleChange} required />
             </div>
-            <div className="form-group col-span-3">
+            <div className="form-group col-span-6">
               <label htmlFor="cpf">CPF</label>
               <input id="cpf" name="cpf" type="text" value={formData.cpf} onChange={handleChange} required />
             </div>
-            <div className="form-group col-span-3">
+            <div className="form-group col-span-6">
               <label htmlFor="rg">RG</label>
               <input id="rg" name="rg" type="text" value={formData.rg} onChange={handleChange} />
             </div>
@@ -173,11 +168,11 @@ const PessoaJuridicaForm = ({ formData, handleChange }) => (
               <label htmlFor="razao_social">Razão Social</label>
               <input id="razao_social" name="razao_social" type="text" value={formData.razao_social} onChange={handleChange} required />
             </div>
-            <div className="form-group col-span-6">
+            <div className="form-group col-span-7">
               <label htmlFor="nome_fantasia">Nome Fantasia</label>
               <input id="nome_fantasia" name="nome_fantasia" type="text" value={formData.nome_fantasia} onChange={handleChange} />
             </div>
-            <div className="form-group col-span-6">
+            <div className="form-group col-span-5">
               <label htmlFor="cnpj">CNPJ</label>
               <input id="cnpj" name="cnpj" type="text" value={formData.cnpj} onChange={handleChange} required />
             </div>
@@ -214,11 +209,11 @@ const ContatoEnderecoForm = ({ formData, handleChange }) => (
   <div className="form-section">
     <p className="form-section-title">Contato e Endereço</p>
     <div className="form-grid">
-        <div className="form-group col-span-6">
+        <div className="form-group col-span-7">
             <label htmlFor="pessoa_contato">Pessoa de Contato</label>
             <input id="pessoa_contato" name="pessoa_contato" type="text" value={formData.pessoa_contato} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-6">
+        <div className="form-group col-span-5">
             <label htmlFor="email">E-mail</label>
             <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
         </div>
@@ -234,15 +229,15 @@ const ContatoEnderecoForm = ({ formData, handleChange }) => (
             <label htmlFor="logradouro">Logradouro</label>
             <input id="logradouro" name="logradouro" type="text" value={formData.logradouro} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-2">
+        <div className="form-group col-span-3">
             <label htmlFor="numero">Número</label>
             <input id="numero" name="numero" type="text" value={formData.numero} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-4">
+        <div className="form-group col-span-5">
             <label htmlFor="complemento">Complemento</label>
             <input id="complemento" name="complemento" type="text" value={formData.complemento} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-6">
+        <div className="form-group col-span-4">
             <label htmlFor="bairro">Bairro</label>
             <input id="bairro" name="bairro" type="text" value={formData.bairro} onChange={handleChange} />
         </div>
