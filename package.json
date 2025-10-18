@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/tiagolif/sistema-orcamentos-react.git",
+  "homepage": "https://tiagolif.github.io/sistema-orcamentos-react",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
