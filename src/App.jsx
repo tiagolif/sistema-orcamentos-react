@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import MainLayout from './layout/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Clientes from './pages/Clientes';
@@ -13,7 +13,6 @@ import RecursosForm from './components/recursos/RecursosForm';
 
 function App() {
   return (
-    <Router>
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
@@ -29,7 +28,6 @@ function App() {
         </Route>
         {/* Rotas que não devem usar o MainLayout podem ser adicionadas aqui */}
       </Routes>
-    </Router>
   );
 }
 
