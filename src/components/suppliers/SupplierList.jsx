@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import './SupplierList.css';
+import Button from '../ui/Button';
 
 const SupplierList = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -46,33 +46,35 @@ const SupplierList = () => {
   };
 
   if (error) {
-    return <div className="error-message">Erro ao carregar fornecedores: {error}</div>;
+    return <div className="text-red-500">Erro ao carregar fornecedores: {error}</div>;
   }
 
   return (
-    <table className="supplier-table">
-      <thead>
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <table className="w-full border-collapse mt-6">
+        <thead>
         <tr>
-          <th>RAZÃO SOCIAL / NOME</th>
-          <th>CNPJ / CPF</th>
-          <th>E-MAIL</th>
-          <th>AÇÕES</th>
+          <th className="py-3 px-4 text-left text-gray-500 font-medium uppercase text-xs tracking-wider">RAZÃO SOCIAL / NOME</th>
+          <th className="py-3 px-4 text-left text-gray-500 font-medium uppercase text-xs tracking-wider">CNPJ / CPF</th>
+          <th className="py-3 px-4 text-left text-gray-500 font-medium uppercase text-xs tracking-wider">E-MAIL</th>
+          <th className="py-3 px-4 text-left text-gray-500 font-medium uppercase text-xs tracking-wider">AÇÕES</th>
         </tr>
       </thead>
       <tbody>
         {suppliers.map(supplier => (
-          <tr key={supplier.id}>
-            <td>{supplier.razao_social || supplier.nome_completo}</td>
-            <td>{supplier.cnpj || supplier.cpf}</td>
-            <td>{supplier.email}</td>
-            <td>
-              <button onClick={() => handleEdit(supplier.id)} className="btn-action btn-edit">Editar</button>
-              <button onClick={() => handleDelete(supplier.id)} className="btn-action btn-delete">Excluir</button>
+          <tr key={supplier.id} className="border-b border-gray-200 transition-all duration-200 ease-in-out hover:bg-gray-100">
+            <td className="py-3 px-4 text-sm font-normal text-gray-800">{supplier.razao_social || supplier.nome_completo}</td>
+            <td className="py-3 px-4 text-sm font-normal text-gray-800">{supplier.cnpj || supplier.cpf}</td>
+            <td className="py-3 px-4 text-sm font-normal text-gray-800">{supplier.email}</td>
+            <td className="py-3 px-4 text-sm font-normal text-gray-800">
+              <Button onClick={() => handleEdit(supplier.id)} variant="ghost">Editar</Button>
+              <Button onClick={() => handleDelete(supplier.id)} variant="danger">Excluir</Button>
             </td>
           </tr>
         ))}
       </tbody>
     </table>
+    </div>
   );
 };
 

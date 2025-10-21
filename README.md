@@ -1,17 +1,42 @@
-# React + Vite
+# Hidrosantec - Sistema de Gestão de Orçamentos
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este projeto é um sistema de gestão de orçamentos de obras, desenvolvido com o objetivo de ser uma ferramenta moderna, eficiente e intuitiva, inspirada nas melhores práticas de softwares como o OrçaFácil.
 
-Currently, two official plugins are available:
+## ✨ Filosofia de Design: Prancheta Digital Serena
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+A interface do sistema segue um Design System próprio, focado em clareza, profissionalismo e densidade de informação.
 
-## React Compiler
+- **Conceito**: A interface deve ser limpa, profissional, compacta e organizada, evocando a sensação de uma "prancheta de arquiteto digital".
+- **Paleta de Cores**:
+  - **Primária (Ações)**: Verde Esmeralda
+  - **Navegação Principal**: Cinza Ardósia Escuro
+  - **Fundo**: Branco Gelo
+- **Escala**: O sistema utiliza uma escala compacta, com fontes e espaçamentos otimizados para alta densidade de informação.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tecnologias Utilizadas
 
-## Expanding the ESLint configuration
+- **Frontend**: React 19
+- **Ambiente de Desenvolvimento**: Vite
+- **Roteamento**: React Router
+- **Backend (BaaS)**: Supabase
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-"# Sistema-de-gest-o-de-obras"  
+## 🚀 Como Executar o Projeto
+
+1.  **Instale as dependências:**
+    ```sh
+    npm install
+    ```
+
+2.  **Execute o ambiente de desenvolvimento:**
+    ```sh
+    npm run dev
+    ```
+    A aplicação estará disponível em `http://localhost:5173` (ou em outra porta, se a 5173 estiver em uso).
+
+## 🎯 Conceitos Chave do Negócio
+
+O sistema é construído sobre conceitos fundamentais da engenharia de custos e orçamentação de obras:
+
+- **Composição de Preço Unitário (CPU)**: Detalhamento dos insumos, mão de obra e equipamentos necessários para executar um serviço.
+- **BDI (Benefícios e Despesas Indiretas)**: Taxa aplicada sobre o custo direto para cobrir despesas indiretas e obter o lucro.
+- **Bases de Custo**: Integração com bases de referência como a SINAPI.

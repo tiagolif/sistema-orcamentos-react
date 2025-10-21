@@ -1,51 +1,59 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import './OrcamentoWizard.css';
-import '../ClientForm.css'; // Reutilizando estilos de formulário
+
+// Import custom UI components
+import Button from '../ui/Button';
+import Input from '../ui/Input';
+import ToggleSwitch from '../ui/ToggleSwitch';
+import RadioGroup from '../ui/RadioGroup';
 
 const categoriasDeObra = [
-  'Calçadas e meio-fio',
-  'Construção e ampliação de rede de abastecimento de água',
-  'Creches e escolas - Construção',
-  'Creches e escolas - Reforma',
-  'Espaços públicos e praças - Construção',
-  'Espaços públicos e praças - Reforma',
-  'Galpões',
-  'Infraestruturas Esportivas - Construção',
-  'Infraestruturas Esportivas - Reforma',
-  'Hospitais e unidades de saúde - Construção',
-  'Hospitais e unidades de saúde - Reforma',
-  'Muros',
-  'Passagens molhadas e pontes - Construção',
-  'Passagens molhadas e pontes - Reforma',
-  'Pavimentação asfáltica',
-  'Pavimentação e drenagem',
-  'Pavimentação em bloco de concreto intertravado',
-  'Pavimentação em paralelepípedo',
-  'Prédios públicos - Construção',
-  'Prédios públicos - Reforma',
-  'Unidades habitacionais - Construção',
-  'Unidades habitacionais - Reforma',
-  'Usinas fotovoltaicas',
-  'Outros'
+  'Calçadas e meio-fio', 'Construção e ampliação de rede de abastecimento de água', 'Creches e escolas - Construção', 'Creches e escolas - Reforma', 'Espaços públicos e praças - Construção', 'Espaços públicos e praças - Reforma', 'Galpões', 'Infraestruturas Esportivas - Construção', 'Infraestruturas Esportivas - Reforma', 'Hospitais e unidades de saúde - Construção', 'Hospitais e unidades de saúde - Reforma', 'Muros', 'Passagens molhadas e pontes - Construção', 'Passagens molhadas e pontes - Reforma', 'Pavimentação asfáltica', 'Pavimentação e drenagem', 'Pavimentação em bloco de concreto intertravado', 'Pavimentação em paralelepípedo', 'Prédios públicos - Construção', 'Prédios públicos - Reforma', 'Unidades habitacionais - Construção', 'Unidades habitacionais - Reforma', 'Usinas fotovoltaicas', 'Outros'
 ];
 
 const OrcamentoWizard = () => {
   const navigate = useNavigate();
+  const { id } = useParams(); // Get ID from URL for editing
   const [step, setStep] = useState(1);
   const [clientes, setClientes] = useState([]);
   const [isLicitacao, setIsLicitacao] = useState(false);
 
+  useEffect(() => {
+    console.log('[VIDA] Componente Wizard MONTADO');
+    return () => console.log('[VIDA] Componente Wizard DESMONTADO');
+  }, []);
+
+  useEffect(() => {
+    console.log(`[PASSO] O passo mudou para: ${step}`);
+  }, [step]);
+
   const [formData, setFormData] = useState({
+    // Step 1
     codigo: '',
     descricao: '',
     cliente_id: '',
-    categoria: categoriasDeObra[0], // Define um valor padrão
+    categoria: categoriasDeObra[0],
     prazo_entrega: '',
     tipo_licitacao: '',
     data_abertura: '',
     num_processo: '',
+    // Step 2
+    arredondamento: 'arredondar',
+    encargos_sociais: 'desonerado',
+    bdi_metodo: 'incidir_preco_final',
+    bdi_id: '',
+    is_bdi_manual: false,
+    bdi_lucro: '',
+    bdi_despesas_fixas: '',
+    bdi_impostos: '',
+    itens: [], // Placeholder for budget items
+    // Step 3
+    bases: {
+      sinapi: { enabled: true, local: 'SC', versao: '09/2025', arredondamento: 'orcamento' },
+      sbc: { enabled: false, local: 'SC', versao: '09/2025', arredondamento: 'orcamento' },
+      sicro: { enabled: false, local: 'SC', versao: '09/2025', arredondamento: 'orcamento' },
+    }
   });
 
   useEffect(() => {
@@ -53,75 +61,399 @@ const OrcamentoWizard = () => {
       const { data, error } = await supabase.from('clientes').select('id, nome_completo, razao_social');
       if (!error) setClientes(data);
     };
-    fetchClientes();
+
+    const fetchOrcamento = async () => {
+      if (id) {
+        const { data, error } = await supabase
+          .from('orcamentos')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching orcamento:', error);
+          navigate('/orcamentos'); // Redirect if orcamento not found
+        } else {
+          // Map fetched data to formData state
+          setFormData({
+            codigo: data.codigo || '',
+            descricao: data.nome_orcamento || '',
+            cliente_id: data.cliente_id || '',
+            categoria: data.categoria || categoriasDeObra[0],
+            prazo_entrega: data.data_validade || '',
+            tipo_licitacao: data.tipo_licitacao || '',
+            data_abertura: data.data_abertura || '',
+            num_processo: data.num_processo || '',
+            arredondamento: data.arredondamento || 'arredondar',
+            encargos_sociais: data.encargos_sociais || 'desonerado',
+            bdi_metodo: data.bdi_metodo || 'incidir_preco_final',
+            bdi_id: data.bdi_id || '',
+            is_bdi_manual: data.is_bdi_manual || false,
+            bdi_lucro: data.bdi_lucro || '',
+            bdi_despesas_fixas: data.bdi_despesas_fixas || '',
+            bdi_impostos: data.bdi_impostos || '',
+            bases: data.bases || {
+              sinapi: { enabled: true, local: 'SC', versao: '09/2025', arredondamento: 'orcamento' },
+              sbc: { enabled: false, local: 'SC', versao: '09/2025', arredondamento: 'orcamento' },
+              sicro: { enabled: false, local: 'SC', versao: '09/2025', arredondamento: 'orcamento' },
+            },
+          });
+          setIsLicitacao(!!(data.tipo_licitacao || data.num_processo));
+        }
+      }
+    };
+
+    if (step === 1) fetchClientes();
+    fetchOrcamento();
+  }, [id, step, navigate]);
+
+  const handleChange = useCallback((e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const handleBaseChange = useCallback((base, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      bases: {
+        ...prev.bases,
+        [base]: { ...prev.bases[base], [field]: value === 'true' ? true : value === 'false' ? false : value }
+      }
+    }));
+  }, []);
+
+          const handleSubmit = useCallback(async () => {
+            console.log('[SUBMIT] Iniciando handleSubmit...');
+            if (!formData.cliente_id) {
+              console.warn('Por favor, selecione um cliente no Passo 1.');
+              setStep(1);
+              return;
+            }
+                    console.log('[SUBMIT] Validação OK, prosseguindo para salvar.');
+                // Separate main budget data from items data and remove invalid keys
+                const { itens, bases, arredondamento, bdi_lucro, bdi_despesas_fixas, bdi_impostos, bdi_id, bdi_metodo, categoria, ...restOfFormData } = formData;
+
+    // Sanitize date fields: convert empty strings to null for Supabase compatibility
+    const payloadParaSupabase = {
+      ...restOfFormData,
+      prazo_entrega: restOfFormData.prazo_entrega === '' ? null : restOfFormData.prazo_entrega,
+      data_abertura: restOfFormData.data_abertura === '' ? null : restOfFormData.data_abertura,
+      tipo_licitacao: !!restOfFormData.tipo_licitacao, // Convert to boolean
+    };
+
+    console.log('Payload para Supabase (orcamentos):', payloadParaSupabase);
+
+    let orcamentoResponse;
+    try {
+      // console.log('[SUBMIT] Definindo isLoading para true...'); // Assuming a setLoading state exists
+      if (id) {
+        // Update existing orcamento
+        orcamentoResponse = await supabase
+          .from('orcamentos')
+          .update(payloadParaSupabase)
+          .eq('id', id)
+          .select('id')
+          .single();
+      } else {
+        // Create new orcamento
+        orcamentoResponse = await supabase
+          .from('orcamentos')
+          .insert(payloadParaSupabase)
+          .select('id')
+          .single();
+      }
+
+      const { data: novoOrcamento, error: orcamentoError } = orcamentoResponse;
+
+      if (orcamentoError) {
+        console.error('Erro detalhado do Supabase ao salvar orçamento:', orcamentoError.message, orcamentoError.details);
+        return;
+      }
+
+      const orcamentoId = novoOrcamento.id;
+      console.log(`Orçamento ${id ? 'atualizado' : 'criado'} com ID:`, orcamentoId);
+
+      // Prepare and insert budget items
+      if (formData.itens && formData.itens.length > 0) {
+        const itensFormatados = formData.itens.map(item => ({
+          orcamento_id: orcamentoId,
+          item_id: item.id, // Assuming item.id is the id from itens_da_base
+          quantidade: item.quantidade,
+          preco_unitario_congelado: item.preco_unitario,
+        }));
+
+        console.log('Payload para Supabase (orcamento_itens):', itensFormatados);
+
+        const { error: itensError } = await supabase
+          .from('orcamento_itens')
+          .insert(itensFormatados);
+
+        if (itensError) {
+          console.error('Erro detalhado do Supabase ao salvar itens do orçamento:', itensError.message, itensError.details);
+          // Optionally, you might want to delete the main budget if item saving fails
+          // await supabase.from('orcamentos').delete().eq('id', orcamentoId);
+          return;
+        }
+        console.log('Itens do orçamento salvos com sucesso.');
+      }
+
+      console.log('[SUBMIT] Salvamento concluído, navegando...');
+      navigate(`/orcamento/${orcamentoId}`);
+
+    } catch (error) {
+                      console.error('[SUBMIT] ERRO CAPTURADO:', error);
+                    }
+                  }, [formData, id, navigate, setStep]);
 
   const StepIndicator = () => (
-    <div className="step-indicator">
-      <div className={`step ${step >= 1 ? 'active' : ''}`}>
-        <div className="step-number">1</div>
-        <span>Informações Gerais</span>
-      </div>
-      <div className={`step ${step >= 2 ? 'active' : ''}`}>
-        <div className="step-number">2</div>
-        <span>Itens do Orçamento</span>
-      </div>
-      <div className={`step ${step >= 3 ? 'active' : ''}`}>
-        <div className="step-number">3</div>
-        <span>Totais e Fechamento</span>
-      </div>
+    <div className="flex items-center justify-around mb-8 pb-4 border-b border-gray-200 relative"> {/* step-indicator */}
+      {/* Connecting lines */}
+      <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-0.5 bg-gray-200 mx-12"></div>
+      <div className={`absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-accent mx-12 transition-all duration-300 ease-in-out`}
+           style={{ width: `${((step - 1) / 2) * 100}%` }}></div>
+
+      {[1, 2, 3].map((stepNum) => (
+        <div
+          key={stepNum}
+          className={`flex flex-col items-center z-10 ${stepNum <= step ? 'cursor-pointer' : ''}`}
+          onClick={() => stepNum <= step && setStep(stepNum)}
+        >
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 font-bold transition-all duration-300 ease-in-out
+              ${stepNum === step
+                ? 'bg-accent border-4 border-orange-300 text-white shadow-md' // Current step
+                : stepNum < step
+                  ? 'bg-accent border-2 border-accent text-white' // Completed step
+                  : 'bg-gray-200 border-2 border-gray-400 text-gray-400' // Pending step
+              }`}
+          >
+            {stepNum < step ? <span className="text-white">&#10003;</span> : stepNum}
+          </div>
+          <span
+            className={`text-sm font-semibold transition-colors duration-300 ease-in-out
+              ${stepNum === step
+                ? 'text-accent' // Current step
+                : stepNum < step
+                  ? 'text-accent' // Completed step
+                  : 'text-gray-400' // Pending step
+              }`}
+          >
+            {stepNum === 1 && "Informações Gerais"}
+            {stepNum === 2 && "Encargos e BDI"}
+            {stepNum === 3 && "Bases"}
+          </span>
+        </div>
+      ))}
     </div>
   );
 
   const Step1 = () => (
-    <div className="step-card">
-      <h2>Passo 1: Informações Gerais</h2>
-      <div className="form-grid">
-        <div className="form-group col-span-4"><label>Código</label><input type="text" name="codigo" value={formData.codigo} onChange={handleChange} /></div>
-        <div className="form-group col-span-8"><label>Descrição do Orçamento</label><input type="text" name="descricao" value={formData.descricao} onChange={handleChange} required /></div>
-        <div className="form-group col-span-12"><label>Cliente</label><select name="cliente_id" value={formData.cliente_id} onChange={handleChange} required><option value="" disabled>Selecione um cliente</option>{clientes.map(c => <option key={c.id} value={c.id}>{c.razao_social || c.nome_completo}</option>)}</select></div>
-        <div className="form-group col-span-6">
-          <label>Categoria</label>
-          <select name="categoria" value={formData.categoria} onChange={handleChange}>
+    <div className="bg-white p-8 rounded-lg shadow-md"> {/* step-card */} 
+      <h2 className="mt-0 mb-6">Passo 1: Informações Gerais</h2>
+      <div className="grid grid-cols-2 gap-4"> {/* form-grid */}
+        <div className="flex flex-col gap-1 col-span-1">
+          <label className="text-sm font-medium mb-1">Código</label>
+          <Input type="text" name="codigo" value={formData.codigo} onChange={handleChange} className="w-full" placeholder="Ex: ORC001" />
+        </div>
+        <div className="flex flex-col gap-1 col-span-1">
+          <label className="text-sm font-medium mb-1">Descrição do Orçamento</label>
+          <Input type="text" name="descricao" value={formData.descricao} onChange={handleChange} required className="w-full" placeholder="Ex: Construção de muro residencial" />
+        </div>
+        <div className="flex flex-col gap-1 col-span-2">
+          <label className="text-sm font-medium mb-1">Cliente</label>
+          <select name="cliente_id" value={formData.cliente_id} onChange={handleChange} required className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-text-primary focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20 w-full">
+            <option value="" disabled>Selecione um cliente</option>
+            {clientes.map(c => <option key={c.id} value={c.id}>{c.razao_social || c.nome_completo}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1 col-span-1">
+          <label className="text-sm font-medium mb-1">Categoria</label>
+          <select name="categoria" value={formData.categoria} onChange={handleChange} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-text-primary focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20 w-full">
             {categoriasDeObra.map(cat => <option key={cat} value={cat}>{cat}</option>)}
           </select>
         </div>
-        <div className="form-group col-span-6"><label>Prazo de entrega do orçamento</label><input type="date" name="prazo_entrega" value={formData.prazo_entrega} onChange={handleChange} /></div>
+        <div className="flex flex-col gap-1 col-span-1">
+          <label className="text-sm font-medium mb-1">Prazo de entrega do orçamento</label>
+          <Input type="date" name="prazo_entrega" value={formData.prazo_entrega} onChange={handleChange} className="w-full" />
+        </div>
       </div>
-
-      <div className="licitacao-checkbox">
-        <input type="checkbox" id="licitacao" checked={isLicitacao} onChange={(e) => setIsLicitacao(e.target.checked)} />
-        <label htmlFor="licitacao">Este orçamento é para uma LICITAÇÃO?</label>
+      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-md mb-6"> {/* licitacao-checkbox */}
+        <ToggleSwitch
+          id="licitacao"
+          label="Este orçamento é para uma LICITAÇÃO?"
+          checked={isLicitacao}
+          onChange={(e) => setIsLicitacao(e.target.checked)}
+        />
       </div>
-
       {isLicitacao && (
-        <div className="form-section">
-          <p className="form-section-title">Dados da Licitação</p>
-          <div className="form-grid">
-            <div className="form-group col-span-6"><label>Tipo de Licitação</label><input type="text" name="tipo_licitacao" value={formData.tipo_licitacao} onChange={handleChange} /></div>
-            <div className="form-group col-span-6"><label>Data e Hora de Abertura</label><input type="datetime-local" name="data_abertura" value={formData.data_abertura} onChange={handleChange} /></div>
-            <div className="form-group col-span-12"><label>Número do Processo</label><input type="text" name="num_processo" value={formData.num_processo} onChange={handleChange} /></div>
+        <div className="mb-6">
+          <p className="font-semibold text-lg text-text-primary mb-4 border-b border-gray-200 pb-1.5">Dados da Licitação</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1 col-span-1">
+              <label className="text-sm font-medium mb-1">Tipo de Licitação</label>
+              <Input type="text" name="tipo_licitacao" value={formData.tipo_licitacao} onChange={handleChange} className="w-full" placeholder="Ex: Concorrência Pública" />
+            </div>
+            <div className="flex flex-col gap-1 col-span-1">
+              <label className="text-sm font-medium mb-1">Data e Hora de Abertura</label>
+              <Input type="datetime-local" name="data_abertura" value={formData.data_abertura} onChange={handleChange} className="w-full" />
+            </div>
+            <div className="flex flex-col gap-1 col-span-2">
+              <label className="text-sm font-medium mb-1">Número do Processo</label>
+              <Input type="text" name="num_processo" value={formData.num_processo} onChange={handleChange} className="w-full" placeholder="Ex: 001/2025" />
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 
+
+  const Step2 = () => {
+    const [bdiSource, setBdiSource] = useState(formData.is_bdi_manual ? 'manual' : 'existing');
+
+    useEffect(() => {
+      // Update formData.is_bdi_manual when bdiSource changes
+      setFormData(prev => ({ ...prev, is_bdi_manual: bdiSource === 'manual' }));
+    }, [bdiSource]);
+
+    const handleBdiSourceChange = (e) => {
+      setBdiSource(e.target.value);
+    };
+
+    return (
+      <div className="bg-white p-8 rounded-lg shadow-md"> {/* step-card */}
+        <h2 className="mt-0 mb-6">Passo 2: Arredondamento, Encargos e BDI</h2>
+        <div className="grid grid-cols-1 gap-6"> {/* form-body-grid */}
+          {/* Arredondamento do Orçamento */}
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200"> {/* card */}
+            <RadioGroup
+              label="Arredondamento do Orçamento"
+              name="arredondamento"
+              options={[
+                { label: 'Truncar em 2 casas decimais', value: 'truncar' },
+                { label: 'Arredondar em 2 casas decimais', value: 'arredondar' },
+                { label: 'Não arredondar', value: 'nao_arredondar' },
+              ]}
+              selectedValue={formData.arredondamento}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Encargos Sociais */}
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200"> {/* card */}
+            <RadioGroup
+              label="Encargos Sociais"
+              name="encargos_sociais"
+              options={[
+                { label: 'Desonerado', value: 'desonerado' },
+                { label: 'Não desonerado', value: 'nao_desonerado' },
+              ]}
+              selectedValue={formData.encargos_sociais}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* BDI - Benefícios e Despesas Indiretas */}
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200"> {/* card */}
+            <p className="font-bold text-xl text-text-primary mb-4 border-b border-gray-200 pb-1.5">BDI - Benefícios e Despesas Indiretas</p>
+
+            {/* Método de Aplicação */}
+            <div className="mb-6">
+              <p className="font-semibold text-lg text-text-primary mb-3">Método de Aplicação</p>
+              <RadioGroup
+                name="bdi_metodo"
+                options={[
+                  { label: 'Incidir sobre o preço final do orçamento', value: 'incidir_preco_final' },
+                  { label: 'Incidir sobre o preço unitário da composição', value: 'incidir_preco_unitario' },
+                ]}
+                selectedValue={formData.bdi_metodo}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Origem do BDI */}
+            <div className="mb-6">
+              <p className="font-semibold text-lg text-text-primary mb-3">Origem do BDI</p>
+              <RadioGroup
+                name="bdiSource"
+                options={[
+                  { label: 'Selecionar BDI existente', value: 'existing' },
+                  { label: 'Informar BDI manualmente', value: 'manual' },
+                ]}
+                selectedValue={bdiSource}
+                onChange={handleBdiSourceChange}
+              />
+            </div>
+
+            {bdiSource === 'existing' && (
+              <div className="flex flex-col gap-1 mt-4">
+                <label className="text-sm font-medium mb-1">Selecione um BDI existente</label>
+                <select name="bdi_id" value={formData.bdi_id} onChange={handleChange} className="w-full py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-gray-700 focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20">
+                  <option value="">Nenhum</option>
+                  <option value="1">BDI Padrão - 25%</option>
+                  <option value="2">BDI Licitação - 28.5%</option>
+                </select>
+              </div>
+            )}
+
+            {bdiSource === 'manual' && (
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium mb-1">Lucro (%)</label>
+                  <Input type="number" name="bdi_lucro" value={formData.bdi_lucro || ''} onChange={handleChange} className="w-full" placeholder="Ex: 10" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium mb-1">Despesas Fixas (%)</label>
+                  <Input type="number" name="bdi_despesas_fixas" value={formData.bdi_despesas_fixas || ''} onChange={handleChange} className="w-full" placeholder="Ex: 15" />
+                </div>
+                <div className="flex flex-col gap-1 col-span-2">
+                  <label className="text-sm font-medium mb-1">Impostos (%)</label>
+                  <Input type="number" name="bdi_impostos" value={formData.bdi_impostos || ''} onChange={handleChange} className="w-full" placeholder="Ex: 5" />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const Step3 = () => (
+    <div className="bg-white p-8 rounded-lg shadow-md"> {/* step-card */}
+      <h2 className="mt-0 mb-6">Passo 3: Bases de Custo</h2>
+      <div className="flex flex-col gap-4"> {/* bases-list */}
+        {Object.keys(formData.bases).map(baseKey => {
+          const base = formData.bases[baseKey];
+          return (
+            <div key={baseKey} className={`bg-white p-4 rounded-lg shadow-sm border ${base.enabled ? 'border-accent' : 'border-gray-200 opacity-50'}`}>
+              <div className="grid grid-cols-5 gap-4 items-center">
+                <div className="flex items-center gap-3 font-medium cursor-pointer" onClick={() => handleBaseChange(baseKey, 'enabled', !base.enabled)}> {/* base-name */}
+                  <Input type="checkbox" checked={base.enabled} onChange={(e) => handleBaseChange(baseKey, 'enabled', e.target.checked)} className="w-4 h-4" />
+                  <label>{baseKey.toUpperCase()}</label>
+                </div>
+                <select value={base.local} onChange={(e) => handleBaseChange(baseKey, 'local', e.target.value)} disabled={!base.enabled} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-text-primary focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20"><option>Santa Catarina</option></select>
+                <select value={base.versao} onChange={(e) => handleBaseChange(baseKey, 'versao', e.target.value)} disabled={!base.enabled} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-text-primary focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20"><option>09/2025</option></select>
+                <select value={base.arredondamento} onChange={(e) => handleBaseChange(baseKey, 'arredondamento', e.target.value)} disabled={!base.enabled} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-text-primary focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20"><option value="orcamento">Seguir configuração do orçamento</option><option value="item">Arredondar por item</option></select>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+
   return (
-    <div className="wizard-container">
+    <div className="max-w-3xl mx-auto my-8"> {/* wizard-container */}
       <StepIndicator />
       
       {step === 1 && <Step1 />}
-      {/* Outros passos serão adicionados aqui */}
+      {step === 2 && <Step2 />}
+      {step === 3 && <Step3 />}
 
-      <div className="wizard-actions">
-        <button type="button" className="btn btn-secondary" onClick={() => navigate('/orcamentos')}>Cancelar</button>
-        <button type="button" className="btn btn-primary" onClick={() => setStep(2)}>Próximo</button>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200"> {/* wizard-actions */}
+        {step > 1 && <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}>Voltar</Button>}
+        {step < 3 ? <Button type="button" variant="primary" onClick={() => setStep(step + 1)}>Próximo</Button> : <Button type="button" variant="primary" onClick={handleSubmit}>Finalizar e Salvar</Button>}
       </div>
     </div>
   );

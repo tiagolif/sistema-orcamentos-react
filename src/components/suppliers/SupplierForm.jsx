@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../ClientForm.css'; // Reutilizando os estilos do ClientForm
-
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
+
+// Import custom UI components
+import Button from '../ui/Button';
+import Input from '../ui/Input';
 
 const getInitialFormData = () => ({
   tipo_pessoa: 'pj',
@@ -92,17 +94,25 @@ export default function SupplierForm() {
   };
 
   return (
-    <div className="form-container">
-      <h2>Cadastro de Fornecedores</h2>
+    <div className="bg-white p-6 rounded-lg shadow-md max-w-6xl mx-auto my-8">
+      <h2 className="text-lg mt-0 mb-6 text-center">Cadastro de Fornecedores</h2>
       
       <form onSubmit={handleSubmit}>
-        <div className="type-selector">
-          <button type="button" className={`type-selector-btn ${formData.tipo_pessoa === 'pj' ? 'selected' : ''}`} onClick={() => handleTipoPessoaChange('pj')}>
+        <div className="flex justify-center mb-6 border border-gray-200 rounded-md overflow-hidden">
+          <Button
+            type="button"
+            variant={formData.tipo_pessoa === 'pj' ? 'primary' : 'secondary'}
+            onClick={() => handleTipoPessoaChange('pj')}
+          >
             Pessoa Jurídica
-          </button>
-          <button type="button" className={`type-selector-btn ${formData.tipo_pessoa === 'pf' ? 'selected' : ''}`} onClick={() => handleTipoPessoaChange('pf')}>
+          </Button>
+          <Button
+            type="button"
+            variant={formData.tipo_pessoa === 'pf' ? 'primary' : 'secondary'}
+            onClick={() => handleTipoPessoaChange('pf')}
+          >
             Pessoa Física
-          </button>
+          </Button>
         </div>
 
         {formData.tipo_pessoa === 'pj' ? 
@@ -110,11 +120,11 @@ export default function SupplierForm() {
           <PessoaFisicaForm formData={formData} handleChange={handleChange} />
         }
 
-        <div className="form-actions">
-          <Link to="/fornecedores" className="btn btn-secondary">Voltar</Link>
-          <button type="submit" className="btn btn-primary">Salvar Fornecedor</button>
+        <div className="flex justify-end gap-4 mt-6">
+          <Link to="/fornecedores" className="inline-block px-6 py-3 rounded-md font-semibold border border-accent text-accent transition-all duration-200 ease-in-out hover:bg-accent/10 hover:-translate-y-px">Voltar</Link>
+          <Button type="submit" variant="primary">Salvar Fornecedor</Button>
         </div>
-        {status && <p className={`status-message ${error ? 'error' : 'success'}`}>{status || error}</p>}
+        {status && <p className={`mt-4 ${error ? 'text-red-600' : 'text-green-600'}`}>{status || error}</p>}
       </form>
     </div>
   );
@@ -122,23 +132,23 @@ export default function SupplierForm() {
 
 const PessoaFisicaForm = ({ formData, handleChange }) => (
   <>
-    <div className="form-body-grid">
+    <div className="grid grid-cols-2 gap-8"> {/* form-body-grid */}
       {/* --- COLUNA 1 --- */}
       <div>
-        <div className="form-section">
-          <p className="form-section-title">Dados Pessoais</p>
-          <div className="form-grid">
-            <div className="form-group col-span-12">
-              <label htmlFor="nome_completo">Nome Completo</label>
-              <input id="nome_completo" name="nome_completo" type="text" value={formData.nome_completo} onChange={handleChange} required />
+        <div className="mb-6"> {/* form-section */}
+          <p className="font-semibold text-lg text-text-primary mb-4 border-b border-gray-200 pb-1.5">Dados Pessoais</p> {/* form-section-title */}
+          <div className="grid grid-cols-12 gap-4"> {/* form-grid */}
+            <div className="flex flex-row items-center gap-2 col-span-12"> {/* form-group col-span-12 */}
+              <label htmlFor="nome_completo" className="text-sm font-medium flex-shrink-0">Nome Completo</label>
+              <Input id="nome_completo" name="nome_completo" type="text" value={formData.nome_completo} onChange={handleChange} required />
             </div>
-            <div className="form-group col-span-6">
-              <label htmlFor="cpf">CPF</label>
-              <input id="cpf" name="cpf" type="text" value={formData.cpf} onChange={handleChange} required />
+            <div className="flex flex-row items-center gap-2 col-span-6"> {/* form-group col-span-6 */}
+              <label htmlFor="cpf" className="text-sm font-medium flex-shrink-0">CPF</label>
+              <Input id="cpf" name="cpf" type="text" value={formData.cpf} onChange={handleChange} required />
             </div>
-            <div className="form-group col-span-6">
-              <label htmlFor="rg">RG</label>
-              <input id="rg" name="rg" type="text" value={formData.rg} onChange={handleChange} />
+            <div className="flex flex-row items-center gap-2 col-span-6"> {/* form-group col-span-6 */}
+              <label htmlFor="rg" className="text-sm font-medium flex-shrink-0">RG</label>
+              <Input id="rg" name="rg" type="text" value={formData.rg} onChange={handleChange} />
             </div>
           </div>
         </div>
@@ -158,36 +168,36 @@ const PessoaFisicaForm = ({ formData, handleChange }) => (
 
 const PessoaJuridicaForm = ({ formData, handleChange }) => (
   <>
-    <div className="form-body-grid">
+    <div className="grid grid-cols-2 gap-8"> {/* form-body-grid */}
       {/* --- COLUNA 1 --- */}
       <div>
-        <div className="form-section">
-          <p className="form-section-title">Dados Cadastrais</p>
-          <div className="form-grid">
-            <div className="form-group col-span-12">
-              <label htmlFor="razao_social">Razão Social</label>
-              <input id="razao_social" name="razao_social" type="text" value={formData.razao_social} onChange={handleChange} required />
+        <div className="mb-6"> {/* form-section */}
+          <p className="font-semibold text-lg text-gray-700 mb-4 border-b border-gray-200 pb-1.5">Dados Cadastrais</p> {/* form-section-title */}
+          <div className="grid grid-cols-12 gap-4"> {/* form-grid */}
+            <div className="flex flex-row items-center gap-2 col-span-12"> {/* form-group col-span-12 */}
+              <label htmlFor="razao_social" className="text-sm font-medium flex-shrink-0">Razão Social</label>
+              <Input id="razao_social" name="razao_social" type="text" value={formData.razao_social} onChange={handleChange} required />
             </div>
-            <div className="form-group col-span-7">
-              <label htmlFor="nome_fantasia">Nome Fantasia</label>
-              <input id="nome_fantasia" name="nome_fantasia" type="text" value={formData.nome_fantasia} onChange={handleChange} />
+            <div className="flex flex-row items-center gap-2 col-span-7"> {/* form-group col-span-7 */}
+              <label htmlFor="nome_fantasia" className="text-sm font-medium flex-shrink-0">Nome Fantasia</label>
+              <Input id="nome_fantasia" name="nome_fantasia" type="text" value={formData.nome_fantasia} onChange={handleChange} />
             </div>
-            <div className="form-group col-span-5">
-              <label htmlFor="cnpj">CNPJ</label>
-              <input id="cnpj" name="cnpj" type="text" value={formData.cnpj} onChange={handleChange} required />
+            <div className="flex flex-row items-center gap-2 col-span-5"> {/* form-group col-span-5 */}
+              <label htmlFor="cnpj" className="text-sm font-medium flex-shrink-0">CNPJ</label>
+              <Input id="cnpj" name="cnpj" type="text" value={formData.cnpj} onChange={handleChange} required />
             </div>
           </div>
         </div>
-        <div className="form-section">
-          <p className="form-section-title">Informações Fiscais</p>
-          <div className="form-grid">
-            <div className="form-group col-span-6">
-              <label htmlFor="inscricao_estadual">Inscrição Estadual</label>
-              <input id="inscricao_estadual" name="inscricao_estadual" type="text" value={formData.inscricao_estadual} onChange={handleChange} />
+        <div className="mb-6"> {/* form-section */}
+          <p className="font-semibold text-lg text-text-primary mb-4 border-b border-gray-200 pb-1.5">Informações Fiscais</p> {/* form-section-title */}
+          <div className="grid grid-cols-12 gap-4"> {/* form-grid */}
+            <div className="flex flex-row items-center gap-2 col-span-6"> {/* form-group col-span-6 */}
+              <label htmlFor="inscricao_estadual" className="text-sm font-medium flex-shrink-0">Inscrição Estadual</label>
+              <Input id="inscricao_estadual" name="inscricao_estadual" type="text" value={formData.inscricao_estadual} onChange={handleChange} />
             </div>
-            <div className="form-group col-span-6">
+            <div className="flex flex-row items-center gap-2 col-span-6"> {/* form-group col-span-6 */}
               <label htmlFor="inscricao_municipal">Inscrição Municipal</label>
-              <input id="inscricao_municipal" name="inscricao_municipal" type="text" value={formData.inscricao_municipal} onChange={handleChange} />
+              <Input id="inscricao_municipal" name="inscricao_municipal" type="text" value={formData.inscricao_municipal} onChange={handleChange} />
             </div>
           </div>
         </div>
@@ -206,88 +216,88 @@ const PessoaJuridicaForm = ({ formData, handleChange }) => (
 );
 
 const ContatoEnderecoForm = ({ formData, handleChange }) => (
-  <div className="form-section">
-    <p className="form-section-title">Contato e Endereço</p>
-    <div className="form-grid">
-        <div className="form-group col-span-7">
-            <label htmlFor="pessoa_contato">Pessoa de Contato</label>
-            <input id="pessoa_contato" name="pessoa_contato" type="text" value={formData.pessoa_contato} onChange={handleChange} />
+  <div className="mb-6"> {/* form-section */}
+    <p className="font-semibold text-lg text-text-primary mb-4 border-b border-gray-200 pb-1.5">Contato e Endereço</p> {/* form-section-title */}
+    <div className="grid grid-cols-12 gap-4"> {/* form-grid */}
+        <div className="flex flex-row items-center gap-2 col-span-7"> {/* form-group col-span-7 */}
+            <label htmlFor="pessoa_contato" className="text-sm font-medium flex-shrink-0">Pessoa de Contato</label>
+            <Input id="pessoa_contato" name="pessoa_contato" type="text" value={formData.pessoa_contato} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-5">
+        <div className="flex flex-row items-center gap-2 col-span-5"> {/* form-group col-span-5 */}
             <label htmlFor="email">E-mail</label>
-            <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
+            <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-12">
+        <div className="flex flex-row items-center gap-2 col-span-12"> {/* form-group col-span-12 */}
             <label htmlFor="telefone">Telefone</label>
-            <input id="telefone" name="telefone" type="text" value={formData.telefone} onChange={handleChange} />
+            <Input id="telefone" name="telefone" type="text" value={formData.telefone} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-3">
-            <label htmlFor="cep">CEP</label>
-            <input id="cep" name="cep" type="text" value={formData.cep} onChange={handleChange} />
+        <div className="flex flex-row items-center gap-2 col-span-3"> {/* form-group col-span-3 */}
+            <label htmlFor="cep" className="text-sm font-medium flex-shrink-0">CEP</label>
+            <Input id="cep" name="cep" type="text" value={formData.cep} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-9">
+        <div className="flex flex-row items-center gap-2 col-span-9"> {/* form-group col-span-9 */}
             <label htmlFor="logradouro">Logradouro</label>
-            <input id="logradouro" name="logradouro" type="text" value={formData.logradouro} onChange={handleChange} />
+            <Input id="logradouro" name="logradouro" type="text" value={formData.logradouro} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-3">
+        <div className="flex flex-row items-center gap-2 col-span-3"> {/* form-group col-span-3 */}
             <label htmlFor="numero">Número</label>
-            <input id="numero" name="numero" type="text" value={formData.numero} onChange={handleChange} />
+            <Input id="numero" name="numero" type="text" value={formData.numero} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-5">
+        <div className="flex flex-row items-center gap-2 col-span-5"> {/* form-group col-span-5 */}
             <label htmlFor="complemento">Complemento</label>
-            <input id="complemento" name="complemento" type="text" value={formData.complemento} onChange={handleChange} />
+            <Input id="complemento" name="complemento" type="text" value={formData.complemento} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-4">
+        <div className="flex flex-row items-center gap-2 col-span-4"> {/* form-group col-span-4 */}
             <label htmlFor="bairro">Bairro</label>
-            <input id="bairro" name="bairro" type="text" value={formData.bairro} onChange={handleChange} />
+            <Input id="bairro" name="bairro" type="text" value={formData.bairro} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-9">
+        <div className="flex flex-row items-center gap-2 col-span-9"> {/* form-group col-span-9 */}
             <label htmlFor="cidade">Cidade</label>
-            <input id="cidade" name="cidade" type="text" value={formData.cidade} onChange={handleChange} />
+            <Input id="cidade" name="cidade" type="text" value={formData.cidade} onChange={handleChange} />
         </div>
-        <div className="form-group col-span-3">
+        <div className="flex flex-row items-center gap-2 col-span-3"> {/* form-group col-span-3 */}
             <label htmlFor="uf">UF</label>
-            <input id="uf" name="uf" type="text" value={formData.uf} onChange={handleChange} />
+            <Input id="uf" name="uf" type="text" value={formData.uf} onChange={handleChange} />
         </div>
     </div>
   </div>
 );
 
 const DadosFinanceirosForm = ({ formData, handleChange }) => (
-    <div className="form-section">
-        <p className="form-section-title">Dados Financeiros</p>
-        <div className="form-grid">
-            <div className="form-group col-span-4">
-                <label htmlFor="banco">Banco</label>
-                <input id="banco" name="banco" type="text" value={formData.banco} onChange={handleChange} />
+    <div className="mb-6"> {/* form-section */}
+        <p className="font-semibold text-lg text-text-primary mb-4 border-b border-gray-200 pb-1.5">Dados Financeiros</p> {/* form-section-title */}
+        <div className="grid grid-cols-12 gap-4"> {/* form-grid */}
+            <div className="flex flex-row items-center gap-2 col-span-4"> {/* form-group col-span-4 */}
+                <label htmlFor="banco" className="text-sm font-medium flex-shrink-0">Banco</label>
+                <Input id="banco" name="banco" type="text" value={formData.banco} onChange={handleChange} />
             </div>
-            <div className="form-group col-span-4">
+            <div className="flex flex-row items-center gap-2 col-span-4"> {/* form-group col-span-4 */}
                 <label htmlFor="agencia">Agência</label>
-                <input id="agencia" name="agencia" type="text" value={formData.agencia} onChange={handleChange} />
+                <Input id="agencia" name="agencia" type="text" value={formData.agencia} onChange={handleChange} />
             </div>
-            <div className="form-group col-span-4">
+            <div className="flex flex-row items-center gap-2 col-span-4"> {/* form-group col-span-4 */}
                 <label htmlFor="conta">Conta</label>
-                <input id="conta" name="conta" type="text" value={formData.conta} onChange={handleChange} />
+                <Input id="conta" name="conta" type="text" value={formData.conta} onChange={handleChange} />
             </div>
-            <div className="form-group col-span-12">
-                <label htmlFor="chave_pix">Chave PIX</label>
-                <input id="chave_pix" name="chave_pix" type="text" value={formData.chave_pix} onChange={handleChange} />
+            <div className="flex flex-row items-center gap-2 col-span-12"> {/* form-group col-span-12 */}
+                <label htmlFor="chave_pix" className="text-sm font-medium flex-shrink-0">Chave PIX</label>
+                <Input id="chave_pix" name="chave_pix" type="text" value={formData.chave_pix} onChange={handleChange} />
             </div>
         </div>
     </div>
 );
 
 const ClassificacaoForm = ({ formData, handleChange }) => (
-    <div className="form-section">
-        <p className="form-section-title">Classificação</p>
-        <div className="form-grid">
-            <div className="form-group col-span-12">
-                <label htmlFor="categoria">Categoria</label>
-                <input id="categoria" name="categoria" type="text" placeholder="Ex: Material de Construção, Elétrica" value={formData.categoria} onChange={handleChange} />
+    <div className="mb-6"> {/* form-section */}
+        <p className="font-semibold text-lg text-text-primary mb-4 border-b border-gray-200 pb-1.5">Classificação</p> {/* form-section-title */}
+        <div className="grid grid-cols-12 gap-4"> {/* form-grid */}
+            <div className="flex flex-row items-center gap-2 col-span-12"> {/* form-group col-span-12 */}
+                <label htmlFor="categoria" className="text-sm font-medium flex-shrink-0">Categoria</label>
+                <Input id="categoria" name="categoria" type="text" placeholder="Ex: Material de Construção, Elétrica" value={formData.categoria} onChange={handleChange} />
             </div>
-            <div className="form-group col-span-12">
-                <label htmlFor="observacoes">Observações</label>
-                <textarea id="observacoes" name="observacoes" placeholder="Detalhes importantes sobre o fornecedor..." value={formData.observacoes} onChange={handleChange}></textarea>
+            <div className="flex flex-row items-center gap-2 col-span-12"> {/* form-group col-span-12 */}
+                <label htmlFor="observacoes" className="text-sm font-medium flex-shrink-0">Observações</label>
+                <Input as="textarea" id="observacoes" name="observacoes" placeholder="Detalhes importantes sobre o fornecedor..." value={formData.observacoes} onChange={handleChange} className="min-h-20 resize-y" />
             </div>
         </div>
     </div>

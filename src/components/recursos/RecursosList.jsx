@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
-import '../ClientList.css'; // Reutilizando estilos
-
 const RecursosList = () => {
   const [recursos, setRecursos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,32 +52,35 @@ const RecursosList = () => {
   }
 
   return (
-    <table className="client-table"> {/* Reutilizando a classe da tabela de clientes */}
-      <thead>
-        <tr>
-          <th>Nome / Descrição</th>
-          <th>Tipo</th>
-          <th>Contato Principal</th>
-          <th>Valor</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {recursos.map(recurso => (
-          <tr key={recurso.id}>
-            <td>{recurso.nome_descricao}</td>
-            <td>{recurso.tipo}</td>
-            <td>{recurso.contato}</td>
-            <td>{recurso.valor}</td>
-            <td>
-              <button onClick={() => alert('Editar ' + recurso.id)} className="btn-action btn-edit">Editar</button>
-              <button onClick={() => handleDelete(recurso.id)} className="btn-action btn-delete">Excluir</button>
-            </td>
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+          <tr>
+            <th scope="col" className="py-3 px-4 text-left text-gray-500 font-medium uppercase text-xs tracking-wider">Nome / Descrição</th>
+            <th scope="col" className="py-3 px-4 text-left text-gray-500 font-medium uppercase text-xs tracking-wider">Tipo</th>
+            <th scope="col" className="py-3 px-4 text-left text-gray-500 font-medium uppercase text-xs tracking-wider">Contato Principal</th>
+            <th scope="col" className="py-3 px-4 text-left text-gray-500 font-medium uppercase text-xs tracking-wider">Valor</th>
+            <th scope="col" className="py-3 px-4 text-left text-gray-500 font-medium uppercase text-xs tracking-wider">Ações</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {recursos.map(recurso => (
+            <tr key={recurso.id}>
+              <td className="py-3 px-4 whitespace-nowrap text-sm font-normal text-gray-800">{recurso.nome_descricao}</td>
+              <td className="py-3 px-4 whitespace-nowrap text-sm font-normal text-gray-800">{recurso.tipo}</td>
+              <td className="py-3 px-4 whitespace-nowrap text-sm font-normal text-gray-800">{recurso.contato}</td>
+              <td className="py-3 px-4 whitespace-nowrap text-sm font-normal text-gray-800">{recurso.valor}</td>
+              <td className="py-3 px-4 whitespace-nowrap text-right text-sm font-normal text-gray-800">
+                <Button onClick={() => console.log('Editar ' + recurso.id)} variant="ghost">Editar</Button>
+                <Button onClick={() => handleDelete(recurso.id)} variant="danger">Excluir</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      </div>
+    </div>
   );
 };
-
 export default RecursosList;

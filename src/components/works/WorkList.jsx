@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../supabaseClient';
-import './WorkList.css';
+import { supabase } from '../../supabaseClient.js';
+import Button from '../ui/Button.jsx'; // Import Button component
 
 const WorkList = () => {
   const [works, setWorks] = useState([]);
@@ -46,7 +46,7 @@ const WorkList = () => {
 
   const handleEdit = (id) => {
     // Futuramente, navegar para a página de edição da obra
-    console.log('Editar obra com ID:', id);
+    // console.log('Editar obra com ID:', id);
     // navigate(`/obras/editar/${id}`);
   };
 
@@ -72,24 +72,24 @@ const WorkList = () => {
   }
 
   return (
-    <table className="work-table">
+    <table className="w-full border-collapse mt-6 bg-white rounded-lg overflow-hidden shadow-md"> {/* work-table */}
       <thead>
         <tr>
-          <th>Nome da Obra</th>
-          <th>Cliente Associado</th>
-          <th>Status</th>
-          <th>Ações</th>
+          <th className="p-4 text-left bg-white text-gray-400 font-semibold uppercase text-sm tracking-wider">Nome da Obra</th> {/* work-table thead th */}
+          <th className="p-4 text-left bg-white text-gray-400 font-semibold uppercase text-sm tracking-wider">Cliente Associado</th>
+          <th className="p-4 text-left bg-white text-gray-400 font-semibold uppercase text-sm tracking-wider">Status</th>
+          <th className="p-4 text-left bg-white text-gray-400 font-semibold uppercase text-sm tracking-wider">Ações</th>
         </tr>
       </thead>
       <tbody>
         {works.map(work => (
-          <tr key={work.id}>
-            <td>{work.name}</td>
-            <td>{work.client_name}</td>
-            <td>{work.status}</td>
-            <td>
-              <button onClick={() => handleEdit(work.id)} className="btn-action btn-edit">Editar</button>
-              <button onClick={() => handleDelete(work.id)} className="btn-action btn-delete">Excluir</button>
+          <tr key={work.id} className="border-b border-gray-200 transition-all duration-200 ease-in-out hover:bg-gray-100"> {/* work-table tbody tr */}
+            <td className="p-4 text-base">{work.name}</td> {/* work-table td */}
+            <td className="p-4 text-base">{work.client_name}</td>
+            <td className="p-4 text-base">{work.status}</td>
+            <td className="p-4 text-base">
+              <Button onClick={() => handleEdit(work.id)} variant="ghost">Editar</Button>
+              <Button onClick={() => handleDelete(work.id)} variant="danger">Excluir</Button>
             </td>
           </tr>
         ))}

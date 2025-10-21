@@ -21,7 +21,7 @@ const ItemInputRow = ({ onAddItem }) => {
 
   const handleAdd = () => {
     if (!item.descricao) {
-      alert('A descrição do item é obrigatória.');
+      console.warn('A descrição do item é obrigatória.');
       return;
     }
     onAddItem(item);
@@ -47,7 +47,7 @@ const ItemInputRow = ({ onAddItem }) => {
         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}
       </td>
       <td>
-        <button type="button" className="btn btn-primary" onClick={handleAdd}>Adicionar</button>
+        <Button type="button" variant="primary" onClick={handleAdd}>Adicionar</Button>
       </td>
     </tr>
   );

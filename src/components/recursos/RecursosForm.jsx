@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import '../ClientForm.css'; // Reutilizando o CSS dos outros formulários
+import Input from '../ui/Input';
 
 const getInitialFormData = () => ({
   tipo_recurso: 'CLT',
@@ -86,18 +85,18 @@ export default function RecursosForm() {
       <h2>Cadastro de Recurso</h2>
       <form onSubmit={handleSubmit}>
         <div className="type-selector">
-          <button type="button" className={`type-selector-btn ${formData.tipo_recurso === 'CLT' ? 'selected' : ''}`} onClick={() => handleTypeChange('CLT')}>
+          <Button type="button" variant={formData.tipo_recurso === 'CLT' ? 'primary' : 'secondary'} onClick={() => handleTypeChange('CLT')}>
             Funcionário (CLT)
-          </button>
-          <button type="button" className={`type-selector-btn ${formData.tipo_recurso === 'AUTONOMO' ? 'selected' : ''}`} onClick={() => handleTypeChange('AUTONOMO')}>
+          </Button>
+          <Button type="button" variant={formData.tipo_recurso === 'AUTONOMO' ? 'primary' : 'secondary'} onClick={() => handleTypeChange('AUTONOMO')}>
             Autônomo
-          </button>
-          <button type="button" className={`type-selector-btn ${formData.tipo_recurso === 'EQUIPAMENTO' ? 'selected' : ''}`} onClick={() => handleTypeChange('EQUIPAMENTO')}>
+          </Button>
+          <Button type="button" variant={formData.tipo_recurso === 'EQUIPAMENTO' ? 'primary' : 'secondary'} onClick={() => handleTypeChange('EQUIPAMENTO')}>
             Equipamento
-          </button>
-          <button type="button" className={`type-selector-btn ${formData.tipo_recurso === 'SERVICO' ? 'selected' : ''}`} onClick={() => handleTypeChange('SERVICO')}>
+          </Button>
+          <Button type="button" variant={formData.tipo_recurso === 'SERVICO' ? 'primary' : 'secondary'} onClick={() => handleTypeChange('SERVICO')}>
             Serviço (Terceirizado)
-          </button>
+          </Button>
         </div>
 
         {formData.tipo_recurso === 'CLT' && <FormCLT formData={formData} handleChange={handleChange} />}
@@ -107,7 +106,7 @@ export default function RecursosForm() {
 
         <div className="form-actions">
           <Link to="/recursos" className="btn btn-secondary">Cancelar</Link>
-          <button type="submit" className="btn btn-primary">Salvar Recurso</button>
+          <Button type="submit" variant="primary">Salvar Recurso</Button>
         </div>
         {status && <p className={`status-message ${error ? 'error' : 'success'}`}>{status || error}</p>}
       </form>

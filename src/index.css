@@ -1,85 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme Variables */
+:root, [data-theme='moderno'] {
+  --color-primary: 220 13% 35%; /* #4A5568 */
+  --color-accent: 26 74% 50%;  /* #DD6B20 */
+  --color-secondary: 38 92% 77%; /* #FBD38D */
+  --color-background: 0 0% 100%; /* #FFFFFF */
+  --color-text-primary: 220 13% 35%; /* #4A5568 */
+  --color-text-secondary: 220 10% 47%; /* #718096 */
 }
 
-
-:root {
-  --primary-color: #2ecc71;
-  --sidebar-bg: #34495e;
-  --background-color: #f7f9fb;
-  --text-color: #555;
-  --card-bg: #ffffff;
-  --border-color: #ecf0f1;
-
-  /* Sistema de Escala de Tipografia */
-  --font-size-base: 14px;
-  --font-size-sm: 12px;
-  --font-size-lg: 16px;
-  --font-size-xl: 22px;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+[data-theme='confianca'] {
+  --color-primary: 212 72% 60%; /* #4A90E2 */
+  --color-accent: 158 64% 52%; /* #34D399 */
+  --color-secondary: 28 96% 61%; /* #FB923C */
+  --color-background: 210 17% 98%; /* #F8F9FA */
+  --color-text-primary: 220 17% 23%; /* #2D3748 */
+  --color-text-secondary: 220 11% 63%; /* #90A0B7 - Ajustado */
 }
 
-html {
-  height: 100%;
-  font-family: 'Poppins', sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+[data-theme='crescimento'] {
+  --color-primary: 145 42% 51%; /* #48BB78 */
+  --color-accent: 179 51% 40%; /* #319795 */
+  --color-secondary: 255 79% 76%; /* #A78BFA */
+  --color-background: 210 25% 98%; /* #F7FAFC */
+  --color-text-primary: 220 13% 35%; /* #4A5568 */
+  --color-text-secondary: 220 10% 47%; /* #718096 */
 }
 
-body {
-  height: 100%;
+html, body {
   margin: 0;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  font-size: var(--font-size-base); /* Define a fonte base */
+  padding: 0;
+  height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400; /* font-normal */
+  color: #2d3748; /* Um cinza escuro, similar ao slate-nav */
 }
 
 #root {
-  height: 100%;
-}
-
-/* Reset de estilos de botões para aplicar o design system depois */
-button {
-  font-family: inherit;
-  cursor: pointer;
-}
-
-/* Estilos de Botão Reutilizáveis */
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 600;
-  border: none;
-  transition: all 0.2s ease-in-out;
-  text-decoration: none; /* Para casos onde o Link é usado como botão */
-  display: inline-block; /* Para Links */
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-  color: white;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.btn-secondary {
-  background-color: transparent;
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
-}
-
-.btn-secondary:hover {
-  background-color: rgba(46, 204, 113, 0.1);
-  transform: translateY(-1px);
+  height: 100vh; /* Ensure #root also takes full viewport height */
 }

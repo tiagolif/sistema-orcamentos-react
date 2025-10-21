@@ -1,15 +1,11 @@
 import React from 'react';
-import ClientForm from '../components/ClientForm';
-import SupplierForm from '../components/SupplierForm';
-import WorkForm from '../components/WorkForm';
 
 const Home = () => {
   return (
-    <main style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
-      <ClientForm />
-      <SupplierForm />
-      <WorkForm />
-    </main>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-4">Bem-vindo ao sistema Hidrosantec!</h1>
+      <p className="text-text-primary">Utilize o menu lateral para navegar pelas funcionalidades.</p>
+    </div>
   );
 };
 
