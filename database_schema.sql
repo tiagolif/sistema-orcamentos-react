@@ -1,3 +1,6 @@
+
+
+
 -- Tabela: bases_de_preco
 CREATE TABLE bases_de_preco (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

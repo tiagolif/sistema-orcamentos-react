@@ -18,7 +18,7 @@ const ActionCard = ({ icon, title, subtitle, action, activeAction, onActionClick
       <span className={`text-xs ${isActive ? 'text-secondary' : 'text-text-secondary'}`}>{title}</span>
       <span className="text-sm font-semibold">{subtitle}</span>
     </div>
-  );
+ );
 };
 
 const PainelDeAcoes = ({ activeAction, onActionClick }) => {

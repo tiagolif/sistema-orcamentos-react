@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { Link } from 'react-router-dom';
+import RelatoriosModal from '../relatorios/RelatoriosModal';
 
 const OrcamentoList = () => {
   const [orcamentos, setOrcamentos] = useState([]);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOrcamento, setSelectedOrcamento] = useState(null);
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm("Tem certeza que deseja excluir este orçamento?");
@@ -17,6 +20,16 @@ const OrcamentoList = () => {
         setOrcamentos(orcamentos.filter(o => o.id !== id));
       }
     }
+  };
+
+  const handleOpenModal = (orcamento) => {
+    setSelectedOrcamento(orcamento);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrcamento(null);
   };
 
   useEffect(() => {
@@ -63,7 +76,7 @@ const OrcamentoList = () => {
             <td className="py-3 px-4 text-sm font-normal text-gray-800">{item.status}</td>
             <td className="py-3 px-4 text-center text-sm font-normal text-gray-800">
               <div className="flex justify-center gap-2">
-                <Link to={`/orcamentos/${item.id}`} className="text-blue-500 hover:text-blue-700">
+                <Link to={`/orcamento/${item.id}`} className="text-blue-500 hover:text-blue-700">
                   Visualizar
                 </Link>
                 <Link to={`/orcamentos/${item.id}/editar`} className="text-accent hover:text-orange-700">
@@ -72,12 +85,23 @@ const OrcamentoList = () => {
                 <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:text-red-700">
                   Excluir
                 </button>
+                <button onClick={() => handleOpenModal(item)} className="text-green-500 hover:text-green-700">
+                  Relatório
+                </button>
               </div>
             </td>
           </tr>
         ))}
       </tbody>
     </table>
+
+    {isModalOpen && selectedOrcamento && (
+      <RelatoriosModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        orcamentoId={selectedOrcamento.id}
+      />
+    )}
     </div>
   );
 };

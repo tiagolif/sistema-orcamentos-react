@@ -55,7 +55,7 @@ export default function ClientForm() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [tipoPessoa, setTipoPessoa] = useState('pf'); // Controla o tipo de pessoa para o formulário
+  const [tipoPessoa, setTipoPessoa] = useState('pj'); // Controla o tipo de pessoa para o formulário
 
   const { 
     register,
@@ -67,7 +67,7 @@ export default function ClientForm() {
   } = useForm({
     resolver: zodResolver(clientSchema),
     defaultValues: {
-      tipo_pessoa: 'pf', // Garante que o tipo_pessoa inicial seja 'pf'
+      tipo_pessoa: 'pj', // Garante que o tipo_pessoa inicial seja 'pj'
       nome_completo: '',
       razao_social: '',
       nome_fantasia: '',
@@ -97,7 +97,7 @@ export default function ClientForm() {
     const fetchClient = async () => {
       if (!id) {
         reset({
-          tipo_pessoa: 'pf',
+          tipo_pessoa: 'pj',
           nome_completo: '',
           razao_social: '',
           nome_fantasia: '',

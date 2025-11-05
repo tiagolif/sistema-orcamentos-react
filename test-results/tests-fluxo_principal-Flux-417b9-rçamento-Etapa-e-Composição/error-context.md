@@ -1,0 +1,157 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - img "Logo Hidrosantec" [ref=e7]
+        - heading "Hidrosantec" [level=2] [ref=e8]
+      - button "" [ref=e9] [cursor=pointer]:
+        - generic [ref=e10]: 
+    - navigation [ref=e11]:
+      - list [ref=e12]:
+        - listitem [ref=e13]:
+          - link " Painel" [ref=e14] [cursor=pointer]:
+            - /url: "#/"
+            - generic [ref=e15]: 
+            - generic [ref=e16]: Painel
+        - listitem [ref=e17]:
+          - button " Orçamentos " [ref=e18] [cursor=pointer]:
+            - generic [ref=e19]:
+              - generic [ref=e20]: 
+              - generic [ref=e21]: Orçamentos
+            - generic [ref=e22]: 
+          - list [ref=e23]:
+            - listitem [ref=e24]:
+              - link "Lista de Orçamentos" [ref=e25] [cursor=pointer]:
+                - /url: "#/orcamentos"
+                - generic [ref=e26]: Lista de Orçamentos
+            - listitem [ref=e27]:
+              - link "Criar Orçamento" [ref=e28] [cursor=pointer]:
+                - /url: "#/orcamentos/novo"
+                - generic [ref=e29]: Criar Orçamento
+        - listitem [ref=e30]:
+          - link " Composições" [ref=e31] [cursor=pointer]:
+            - /url: "#/composicoes"
+            - generic [ref=e32]: 
+            - generic [ref=e33]: Composições
+        - listitem [ref=e34]:
+          - link " Insumos" [ref=e35] [cursor=pointer]:
+            - /url: "#/insumos"
+            - generic [ref=e36]: 
+            - generic [ref=e37]: Insumos
+        - listitem [ref=e38]:
+          - link " Planejamentos" [ref=e39] [cursor=pointer]:
+            - /url: "#/planejamentos"
+            - generic [ref=e40]: 
+            - generic [ref=e41]: Planejamentos
+        - listitem [ref=e42]:
+          - link " Diário de Obras" [ref=e43] [cursor=pointer]:
+            - /url: "#/diario-de-obras"
+            - generic [ref=e44]: 
+            - generic [ref=e45]: Diário de Obras
+        - listitem [ref=e46]:
+          - link " Medições" [ref=e47] [cursor=pointer]:
+            - /url: "#/medicoes"
+            - generic [ref=e48]: 
+            - generic [ref=e49]: Medições
+        - listitem [ref=e50]:
+          - link " Compras" [ref=e51] [cursor=pointer]:
+            - /url: "#/compras"
+            - generic [ref=e52]: 
+            - generic [ref=e53]: Compras
+        - listitem [ref=e54]:
+          - button " Cadastros " [ref=e55] [cursor=pointer]:
+            - generic [ref=e56]:
+              - generic [ref=e57]: 
+              - generic [ref=e58]: Cadastros
+            - generic [ref=e59]: 
+          - list [ref=e60]:
+            - listitem [ref=e61]:
+              - link "Clientes" [ref=e62] [cursor=pointer]:
+                - /url: "#/clientes"
+                - generic [ref=e63]: Clientes
+            - listitem [ref=e64]:
+              - link "Fornecedores" [ref=e65] [cursor=pointer]:
+                - /url: "#/fornecedores"
+                - generic [ref=e66]: Fornecedores
+            - listitem [ref=e67]:
+              - link "Recursos" [ref=e68] [cursor=pointer]:
+                - /url: "#/recursos"
+                - generic [ref=e69]: Recursos
+            - listitem [ref=e70]:
+              - link "BDI" [ref=e71] [cursor=pointer]:
+                - /url: "#/bdi"
+                - generic [ref=e72]: BDI
+            - listitem [ref=e73]:
+              - link "Encargos Sociais" [ref=e74] [cursor=pointer]:
+                - /url: "#/encargos-sociais"
+                - generic [ref=e75]: Encargos Sociais
+        - listitem [ref=e76]:
+          - button "Configurações" [ref=e77] [cursor=pointer]:
+            - img [ref=e78]
+            - generic [ref=e80]: Configurações
+  - main [ref=e82]:
+    - generic [ref=e83]:
+      - generic [ref=e84]:
+        - generic [ref=e86] [cursor=pointer]:
+          - generic [ref=e88]: "1"
+          - generic [ref=e89]: Informações Gerais
+        - generic [ref=e90]:
+          - generic [ref=e92]: "2"
+          - generic [ref=e93]: Encargos e BDI
+        - generic [ref=e94]:
+          - generic [ref=e96]: "3"
+          - generic [ref=e97]: Bases
+      - generic [ref=e98]:
+        - 'heading "Passo 1: Informações Gerais" [level=2] [ref=e99]'
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - generic [ref=e102]: Código
+            - 'textbox "Ex: ORC001" [ref=e103]'
+          - generic [ref=e104]:
+            - generic [ref=e105]: Descrição do Orçamento
+            - 'textbox "Ex: Construção de muro residencial" [ref=e106]': Orçamento de Teste E2E
+          - generic [ref=e107]:
+            - generic [ref=e108]: Cliente
+            - combobox [ref=e109]:
+              - option "Selecione um cliente" [disabled] [selected]
+              - option "Tiago cunha de souza"
+              - option "Cliente Teste 1761674262771"
+              - option "Cliente E2E 1761701208303"
+          - generic [ref=e110]:
+            - generic [ref=e111]: Categoria
+            - combobox [ref=e112]:
+              - option "Calçadas e meio-fio" [selected]
+              - option "Construção e ampliação de rede de abastecimento de água"
+              - option "Creches e escolas - Construção"
+              - option "Creches e escolas - Reforma"
+              - option "Espaços públicos e praças - Construção"
+              - option "Espaços públicos e praças - Reforma"
+              - option "Galpões"
+              - option "Infraestruturas Esportivas - Construção"
+              - option "Infraestruturas Esportivas - Reforma"
+              - option "Hospitais e unidades de saúde - Construção"
+              - option "Hospitais e unidades de saúde - Reforma"
+              - option "Muros"
+              - option "Passagens molhadas e pontes - Construção"
+              - option "Passagens molhadas e pontes - Reforma"
+              - option "Pavimentação asfáltica"
+              - option "Pavimentação e drenagem"
+              - option "Pavimentação em bloco de concreto intertravado"
+              - option "Pavimentação em paralelepípedo"
+              - option "Prédios públicos - Construção"
+              - option "Prédios públicos - Reforma"
+              - option "Unidades habitacionais - Construção"
+              - option "Unidades habitacionais - Reforma"
+              - option "Usinas fotovoltaicas"
+              - option "Outros"
+          - generic [ref=e113]:
+            - generic [ref=e114]: Prazo de entrega do orçamento
+            - textbox [ref=e115]
+        - generic [ref=e117]:
+          - generic [ref=e118]: Este orçamento é para uma LICITAÇÃO?
+          - checkbox "Este orçamento é para uma LICITAÇÃO?" [ref=e121]
+      - button "Próximo" [ref=e125] [cursor=pointer]
+```

@@ -44,6 +44,7 @@ const Sidebar = ({ isSidebarExpanded, toggleSidebar, isModalOpen, setIsModalOpen
             <ul className={`list-none pl-6 ml-5`}> {/* submenu open */}
               <li><NavLink to="/orcamentos" className={`flex items-center gap-4 py-1.5 px-3 text-gray-200 rounded-md font-medium transition-all duration-300 ease-in-out whitespace-nowrap w-full text-sm ${location.pathname === '/orcamentos' ? 'bg-accent text-white font-semibold' : 'hover:bg-slate-600 hover:text-white'}`}><span className={`${isSidebarExpanded ? 'block' : 'hidden'}`}>Lista de Orçamentos</span></NavLink></li>
               <li><NavLink to="/orcamentos/novo" className={`flex items-center gap-4 py-1.5 px-3 text-gray-200 rounded-md font-medium transition-all duration-300 ease-in-out whitespace-nowrap w-full text-sm ${location.pathname === '/orcamentos/novo' ? 'bg-accent text-white font-semibold' : 'hover:bg-slate-600 hover:text-white'}`}><span className={`${isSidebarExpanded ? 'block' : 'hidden'}`}>Criar Orçamento</span></NavLink></li>
+              <li><NavLink to="/bases-de-preco" className={`flex items-center gap-4 py-1.5 px-3 text-gray-200 rounded-md font-medium transition-all duration-300 ease-in-out whitespace-nowrap w-full text-sm ${location.pathname === '/bases-de-preco' ? 'bg-accent text-white font-semibold' : 'hover:bg-slate-600 hover:text-white'}`}><span className={`${isSidebarExpanded ? 'block' : 'hidden'}`}>Bases de Preço</span></NavLink></li>
             </ul>
           </li>
           

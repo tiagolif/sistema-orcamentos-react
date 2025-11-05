@@ -1,5 +1,5 @@
 import React from 'react';
-import useOrcamentoStore from '../../store/orcamentoStore';
+import useOrcamentoStore from '../../store/orcamentoStore.jsx';
 
 const ResumoCabecalho = () => {
   const { bdiRate, totais } = useOrcamentoStore();

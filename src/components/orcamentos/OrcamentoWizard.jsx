@@ -5,6 +5,7 @@ import { supabase } from '../../supabaseClient';
 // Import custom UI components
 import Button from '../ui/Button';
 import Input from '../ui/Input';
+import useOrcamentoStore, { useOrcamentoStoreGet } from '../../store/orcamentoStore';
 import ToggleSwitch from '../ui/ToggleSwitch';
 import RadioGroup from '../ui/RadioGroup';
 
@@ -77,17 +78,17 @@ const OrcamentoWizard = () => {
           // Map fetched data to formData state
           setFormData({
             codigo: data.codigo || '',
-            descricao: data.nome_orcamento || '',
+            descricao: data.descricao || '',
             cliente_id: data.cliente_id || '',
             categoria: data.categoria || categoriasDeObra[0],
-            prazo_entrega: data.data_validade || '',
+            prazo_entrega: data.prazo_entrega || '',
             tipo_licitacao: data.tipo_licitacao || '',
             data_abertura: data.data_abertura || '',
             num_processo: data.num_processo || '',
             arredondamento: data.arredondamento || 'arredondar',
             encargos_sociais: data.encargos_sociais || 'desonerado',
             bdi_metodo: data.bdi_metodo || 'incidir_preco_final',
-            bdi_id: data.bdi_id || '',
+            bdi_id: data.bdi_rate || '', // Corrected from bdi_rate to bdi_id
             is_bdi_manual: data.is_bdi_manual || false,
             bdi_lucro: data.bdi_lucro || '',
             bdi_despesas_fixas: data.bdi_despesas_fixas || '',
@@ -122,94 +123,63 @@ const OrcamentoWizard = () => {
     }));
   }, []);
 
+          const salvarOrcamentoEItens = useOrcamentoStore(state => state.salvarOrcamentoEItens);
+
           const handleSubmit = useCallback(async () => {
-            console.log('[SUBMIT] Iniciando handleSubmit...');
             if (!formData.cliente_id) {
-              console.warn('Por favor, selecione um cliente no Passo 1.');
+              alert('Por favor, selecione um cliente no Passo 1.');
               setStep(1);
               return;
             }
-                    console.log('[SUBMIT] Validação OK, prosseguindo para salvar.');
-                // Separate main budget data from items data and remove invalid keys
-                const { itens, bases, arredondamento, bdi_lucro, bdi_despesas_fixas, bdi_impostos, bdi_id, bdi_metodo, categoria, ...restOfFormData } = formData;
 
-    // Sanitize date fields: convert empty strings to null for Supabase compatibility
-    const payloadParaSupabase = {
-      ...restOfFormData,
-      prazo_entrega: restOfFormData.prazo_entrega === '' ? null : restOfFormData.prazo_entrega,
-      data_abertura: restOfFormData.data_abertura === '' ? null : restOfFormData.data_abertura,
-      tipo_licitacao: !!restOfFormData.tipo_licitacao, // Convert to boolean
-    };
+            const payloadParaSupabase = {
+              codigo: formData.codigo || null,
+              descricao: formData.descricao,
+              cliente_id: formData.cliente_id,
+              categoria: formData.categoria,
+              prazo_entrega: formData.prazo_entrega || null,
+              tipo_licitacao: formData.tipo_licitacao || null,
+              data_abertura: formData.data_abertura || null,
+              num_processo: formData.num_processo || null,
+              arredondamento: formData.arredondamento,
+              encargos_sociais: formData.encargos_sociais,
+              bdi_metodo: formData.bdi_metodo,
+              bdi_rate: formData.bdi_id ? parseFloat(formData.bdi_id) : null,
+              is_bdi_manual: formData.is_bdi_manual,
+              bdi_lucro: formData.bdi_lucro || null,
+              bdi_despesas_fixas: formData.bdi_despesas_fixas || null,
+              bdi_impostos: formData.bdi_impostos || null
+            };
 
-    console.log('Payload para Supabase (orcamentos):', payloadParaSupabase);
+            try {
+              const { data: novoOrcamento, error: orcamentoError } = id
+                ? await supabase.from('orcamentos').update(payloadParaSupabase).eq('id', id).select('id').single()
+                : await supabase.from('orcamentos').insert(payloadParaSupabase).select('id').single();
 
-    let orcamentoResponse;
-    try {
-      // console.log('[SUBMIT] Definindo isLoading para true...'); // Assuming a setLoading state exists
-      if (id) {
-        // Update existing orcamento
-        orcamentoResponse = await supabase
-          .from('orcamentos')
-          .update(payloadParaSupabase)
-          .eq('id', id)
-          .select('id')
-          .single();
-      } else {
-        // Create new orcamento
-        orcamentoResponse = await supabase
-          .from('orcamentos')
-          .insert(payloadParaSupabase)
-          .select('id')
-          .single();
-      }
+              if (orcamentoError) {
+                console.error(orcamentoError.message);
+                alert(orcamentoError.message);
+                return;
+              }
 
-      const { data: novoOrcamento, error: orcamentoError } = orcamentoResponse;
+              console.log("DEBUG: ID do Orçamento a salvar:", novoOrcamento.id);
+              // A mágica acontece aqui: chama a nova função da store com o ID correto
+              await salvarOrcamentoEItens(novoOrcamento.id);
 
-      if (orcamentoError) {
-        console.error('Erro detalhado do Supabase ao salvar orçamento:', orcamentoError.message, orcamentoError.details);
-        return;
-      }
+              const orcamentoId = novoOrcamento.id;
+              navigate(`/orcamento/${orcamentoId}`);
 
-      const orcamentoId = novoOrcamento.id;
-      console.log(`Orçamento ${id ? 'atualizado' : 'criado'} com ID:`, orcamentoId);
-
-      // Prepare and insert budget items
-      if (formData.itens && formData.itens.length > 0) {
-        const itensFormatados = formData.itens.map(item => ({
-          orcamento_id: orcamentoId,
-          item_id: item.id, // Assuming item.id is the id from itens_da_base
-          quantidade: item.quantidade,
-          preco_unitario_congelado: item.preco_unitario,
-        }));
-
-        console.log('Payload para Supabase (orcamento_itens):', itensFormatados);
-
-        const { error: itensError } = await supabase
-          .from('orcamento_itens')
-          .insert(itensFormatados);
-
-        if (itensError) {
-          console.error('Erro detalhado do Supabase ao salvar itens do orçamento:', itensError.message, itensError.details);
-          // Optionally, you might want to delete the main budget if item saving fails
-          // await supabase.from('orcamentos').delete().eq('id', orcamentoId);
-          return;
-        }
-        console.log('Itens do orçamento salvos com sucesso.');
-      }
-
-      console.log('[SUBMIT] Salvamento concluído, navegando...');
-      navigate(`/orcamento/${orcamentoId}`);
-
-    } catch (error) {
-                      console.error('[SUBMIT] ERRO CAPTURADO:', error);
-                    }
-                  }, [formData, id, navigate, setStep]);
+            } catch (error) {
+              console.error(error.message);
+              alert(error.message);
+            }
+          }, [formData, id, navigate, setStep, salvarOrcamentoEItens]);
 
   const StepIndicator = () => (
     <div className="flex items-center justify-around mb-8 pb-4 border-b border-gray-200 relative"> {/* step-indicator */}
       {/* Connecting lines */}
       <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-0.5 bg-gray-200 mx-12"></div>
-      <div className={`absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-accent mx-12 transition-all duration-300 ease-in-out`}
+      <div className={`absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-emerald-primary mx-12 transition-all duration-300 ease-in-out`}
            style={{ width: `${((step - 1) / 2) * 100}%` }}></div>
 
       {[1, 2, 3].map((stepNum) => (
@@ -221,20 +191,20 @@ const OrcamentoWizard = () => {
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 font-bold transition-all duration-300 ease-in-out
               ${stepNum === step
-                ? 'bg-accent border-4 border-orange-300 text-white shadow-md' // Current step
+                ? 'bg-emerald-primary border-4 border-emerald-300 text-white shadow-md' // Current step
                 : stepNum < step
-                  ? 'bg-accent border-2 border-accent text-white' // Completed step
+                  ? 'bg-emerald-primary border-2 border-emerald-primary text-white' // Completed step
                   : 'bg-gray-200 border-2 border-gray-400 text-gray-400' // Pending step
               }`}
           >
-            {stepNum < step ? <span className="text-white">&#10003;</span> : stepNum}
+            {stepNum < step ? <span className="text-white">&#10003;</span> : <span>{stepNum}</span>}
           </div>
           <span
             className={`text-sm font-semibold transition-colors duration-300 ease-in-out
               ${stepNum === step
-                ? 'text-accent' // Current step
+                ? 'text-emerald-primary' // Current step
                 : stepNum < step
-                  ? 'text-accent' // Completed step
+                  ? 'text-emerald-primary' // Completed step
                   : 'text-gray-400' // Pending step
               }`}
           >
@@ -261,14 +231,14 @@ const OrcamentoWizard = () => {
         </div>
         <div className="flex flex-col gap-1 col-span-2">
           <label className="text-sm font-medium mb-1">Cliente</label>
-          <select name="cliente_id" value={formData.cliente_id} onChange={handleChange} required className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-text-primary focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20 w-full">
+          <select name="cliente_id" value={formData.cliente_id} onChange={handleChange} required className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-gray-700 focus:outline-none focus:border-emerald-primary focus:ring-3 focus:ring-emerald-primary/20 w-full">
             <option value="" disabled>Selecione um cliente</option>
             {clientes.map(c => <option key={c.id} value={c.id}>{c.razao_social || c.nome_completo}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1 col-span-1">
           <label className="text-sm font-medium mb-1">Categoria</label>
-          <select name="categoria" value={formData.categoria} onChange={handleChange} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-text-primary focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20 w-full">
+          <select name="categoria" value={formData.categoria} onChange={handleChange} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-gray-700 focus:outline-none focus:border-emerald-primary focus:ring-3 focus:ring-emerald-primary/20 w-full">
             {categoriasDeObra.map(cat => <option key={cat} value={cat}>{cat}</option>)}
           </select>
         </div>
@@ -287,7 +257,7 @@ const OrcamentoWizard = () => {
       </div>
       {isLicitacao && (
         <div className="mb-6">
-          <p className="font-semibold text-lg text-text-primary mb-4 border-b border-gray-200 pb-1.5">Dados da Licitação</p>
+          <p className="font-semibold text-lg text-gray-700 mb-4 border-b border-gray-200 pb-1.5">Dados da Licitação</p>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1 col-span-1">
               <label className="text-sm font-medium mb-1">Tipo de Licitação</label>
@@ -306,18 +276,15 @@ const OrcamentoWizard = () => {
       )}
     </div>
   );
-
-
+  
+  
   const Step2 = () => {
     const [bdiSource, setBdiSource] = useState(formData.is_bdi_manual ? 'manual' : 'existing');
 
-    useEffect(() => {
-      // Update formData.is_bdi_manual when bdiSource changes
-      setFormData(prev => ({ ...prev, is_bdi_manual: bdiSource === 'manual' }));
-    }, [bdiSource]);
-
     const handleBdiSourceChange = (e) => {
-      setBdiSource(e.target.value);
+      const newBdiSource = e.target.value;
+      setBdiSource(newBdiSource);
+      setFormData(prev => ({ ...prev, is_bdi_manual: newBdiSource === 'manual' }));
     };
 
     return (
@@ -355,11 +322,11 @@ const OrcamentoWizard = () => {
 
           {/* BDI - Benefícios e Despesas Indiretas */}
           <div className="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200"> {/* card */}
-            <p className="font-bold text-xl text-text-primary mb-4 border-b border-gray-200 pb-1.5">BDI - Benefícios e Despesas Indiretas</p>
+            <p className="font-bold text-xl text-gray-800 mb-4 border-b border-gray-200 pb-1.5">BDI - Benefícios e Despesas Indiretas</p>
 
             {/* Método de Aplicação */}
             <div className="mb-6">
-              <p className="font-semibold text-lg text-text-primary mb-3">Método de Aplicação</p>
+              <p className="font-semibold text-lg text-gray-700 mb-3">Método de Aplicação</p>
               <RadioGroup
                 name="bdi_metodo"
                 options={[
@@ -373,7 +340,7 @@ const OrcamentoWizard = () => {
 
             {/* Origem do BDI */}
             <div className="mb-6">
-              <p className="font-semibold text-lg text-text-primary mb-3">Origem do BDI</p>
+              <p className="font-semibold text-lg text-gray-700 mb-3">Origem do BDI</p>
               <RadioGroup
                 name="bdiSource"
                 options={[
@@ -388,10 +355,12 @@ const OrcamentoWizard = () => {
             {bdiSource === 'existing' && (
               <div className="flex flex-col gap-1 mt-4">
                 <label className="text-sm font-medium mb-1">Selecione um BDI existente</label>
-                <select name="bdi_id" value={formData.bdi_id} onChange={handleChange} className="w-full py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-gray-700 focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20">
-                  <option value="">Nenhum</option>
-                  <option value="1">BDI Padrão - 25%</option>
-                  <option value="2">BDI Licitação - 28.5%</option>
+                <select name="bdi_id" value={formData.bdi_id} onChange={handleChange} className="w-full py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-gray-700 focus:outline-none focus:border-emerald-primary focus:ring-3 focus:ring-emerald-primary/20">
+                  <option value="0">Nenhum (0.0%)</option>
+                  <option value="25.0">BDI Obra Privada (Mercado) - 25.0%</option>
+                  <option value="22.5">BDI Licitação Federal - Edificação (TCU) - 22.5%</option>
+                  <option value="24.5">BDI Licitação Federal - Infraestrutura (TCU) - 24.5%</option>
+                  <option value="22.3">BDI Licitação Federal - Rodoviária (TCU) - 22.3%</option>
                 </select>
               </div>
             )}
@@ -425,15 +394,15 @@ const OrcamentoWizard = () => {
         {Object.keys(formData.bases).map(baseKey => {
           const base = formData.bases[baseKey];
           return (
-            <div key={baseKey} className={`bg-white p-4 rounded-lg shadow-sm border ${base.enabled ? 'border-accent' : 'border-gray-200 opacity-50'}`}>
+            <div key={baseKey} className={`bg-white p-4 rounded-lg shadow-sm border ${base.enabled ? 'border-emerald-primary' : 'border-gray-200 opacity-50'}`}>
               <div className="grid grid-cols-5 gap-4 items-center">
                 <div className="flex items-center gap-3 font-medium cursor-pointer" onClick={() => handleBaseChange(baseKey, 'enabled', !base.enabled)}> {/* base-name */}
                   <Input type="checkbox" checked={base.enabled} onChange={(e) => handleBaseChange(baseKey, 'enabled', e.target.checked)} className="w-4 h-4" />
                   <label>{baseKey.toUpperCase()}</label>
                 </div>
-                <select value={base.local} onChange={(e) => handleBaseChange(baseKey, 'local', e.target.value)} disabled={!base.enabled} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-text-primary focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20"><option>Santa Catarina</option></select>
-                <select value={base.versao} onChange={(e) => handleBaseChange(baseKey, 'versao', e.target.value)} disabled={!base.enabled} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-text-primary focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20"><option>09/2025</option></select>
-                <select value={base.arredondamento} onChange={(e) => handleBaseChange(baseKey, 'arredondamento', e.target.value)} disabled={!base.enabled} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-text-primary focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/20"><option value="orcamento">Seguir configuração do orçamento</option><option value="item">Arredondar por item</option></select>
+                <select value={base.local} onChange={(e) => handleBaseChange(baseKey, 'local', e.target.value)} disabled={!base.enabled} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-gray-700 focus:outline-none focus:border-emerald-primary focus:ring-3 focus:ring-emerald-primary/20"><option>Santa Catarina</option></select>
+                <select value={base.versao} onChange={(e) => handleBaseChange(baseKey, 'versao', e.target.value)} disabled={!base.enabled} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-gray-700 focus:outline-none focus:border-emerald-primary focus:ring-3 focus:ring-emerald-primary/20"><option>09/2025</option></select>
+                <select value={base.arredondamento} onChange={(e) => handleBaseChange(baseKey, 'arredondamento', e.target.value)} disabled={!base.enabled} className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-gray-700 focus:outline-none focus:border-emerald-primary focus:ring-3 focus:ring-emerald-primary/20"><option value="orcamento">Seguir configuração do orçamento</option><option value="item">Arredondar por item</option></select>
               </div>
             </div>
           );
@@ -447,6 +416,8 @@ const OrcamentoWizard = () => {
     <div className="max-w-3xl mx-auto my-8"> {/* wizard-container */}
       <StepIndicator />
       
+      {/* {submissionError && <p className="text-red-500 font-bold text-lg p-4 bg-red-100 rounded-md">Erro na Submissão: {submissionError}</p>} */}
+
       {step === 1 && <Step1 />}
       {step === 2 && <Step2 />}
       {step === 3 && <Step3 />}

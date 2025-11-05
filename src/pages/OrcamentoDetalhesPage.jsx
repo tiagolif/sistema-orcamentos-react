@@ -6,10 +6,14 @@ import PainelDeAcoes from '../components/orcamentos/PainelDeAcoes';
 import ResumoCabecalho from '../components/orcamentos/ResumoCabecalho';
 import TabelaOrcamento from '../components/orcamentos/TabelaOrcamento';
 
+import ComposicaoSearchModal from '../components/modal/ComposicaoSearchModal';
+
 const OrcamentoDetalhesPage = () => {
   const { id } = useParams();
-  const { dadosGerais, itens, totais, bdiRate, fetchOrcamento } = useOrcamentoStore();
+  const { dadosGerais, itens, totais, bdiRate, fetchOrcamento, adicionarItem, excluirItem, adicionarEtapa } = useOrcamentoStore();
   const [activeAction, setActiveAction] = useState(null);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
     if (id) {
@@ -18,7 +22,47 @@ const OrcamentoDetalhesPage = () => {
   }, [id, fetchOrcamento]);
 
   const handleActionClick = (action) => {
-    setActiveAction(prevAction => prevAction === action ? null : action);
+    switch (action) {
+      case 'composicao': {
+        const parentItem = itens.find(it => it.id === selectedId);
+        if (!selectedId || (parentItem && parentItem.tipo !== 'ETAPA' && parentItem.tipo !== 'COMPOSICAO')) {
+          alert("Por favor, selecione uma Etapa ou uma Composição na tabela para adicionar um item.");
+          return;
+        }
+        setActiveAction(action);
+        setIsSearchModalOpen(true);
+        break;
+      }
+      case 'etapa':
+      case 'insumo':
+        setActiveAction(action);
+        break;
+      default:
+        setActiveAction(null);
+        break;
+    }
+  };
+
+  const handleRowClick = (itemId) => {
+    setSelectedId(prevId => prevId === itemId ? null : itemId);
+  };
+
+  const handleCloseModal = () => {
+    setIsSearchModalOpen(false);
+  };
+
+  const handleSelectComposicao = (composicao) => {
+    const novoItem = {
+      codigo: composicao.codigo,
+      descricao: composicao.descricao,
+      unidade: composicao.unidade,
+      valor_unitario: composicao.custo_total,
+      tipo: 'COMPOSICAO',
+      quantidade: 1,
+      parent_id: selectedId,
+    };
+    adicionarItem(novoItem);
+    setIsSearchModalOpen(false);
   };
 
   if (!dadosGerais.id) {
@@ -62,8 +106,26 @@ const OrcamentoDetalhesPage = () => {
 
       {/* Tabela de Orçamento */}
       <div className="w-full px-2 flex-grow">
-        <TabelaOrcamento itens={itens} totais={totais} bdiRate={bdiRate} />
+        <TabelaOrcamento 
+          itens={itens} 
+          totais={totais} 
+          bdiRate={bdiRate} 
+          activeAction={activeAction} 
+          onActionClick={handleActionClick}
+          adicionarEtapa={adicionarEtapa}
+          excluirItem={excluirItem}
+          selectedId={selectedId}
+          onRowClick={handleRowClick}
+        />
       </div>
+
+      {isSearchModalOpen && (
+        <ComposicaoSearchModal 
+          isOpen={isSearchModalOpen} 
+          onClose={handleCloseModal} 
+          onSelect={handleSelectComposicao} 
+        />
+      )}
     </div>
   );
 };
