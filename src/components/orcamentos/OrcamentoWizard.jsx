@@ -19,6 +19,7 @@ const OrcamentoWizard = () => {
   const [step, setStep] = useState(1);
   const [clientes, setClientes] = useState([]);
   const [isLicitacao, setIsLicitacao] = useState(false);
+  const [obras, setObras] = useState([]);
 
   useEffect(() => {
     console.log('[VIDA] Componente Wizard MONTADO');
@@ -34,6 +35,7 @@ const OrcamentoWizard = () => {
     codigo: '',
     descricao: '',
     cliente_id: '',
+    obra_id: '',
     categoria: categoriasDeObra[0],
     prazo_entrega: '',
     tipo_licitacao: '',
@@ -58,6 +60,23 @@ const OrcamentoWizard = () => {
   });
 
   useEffect(() => {
+    const fetchObras = async () => {
+      if (formData.cliente_id) {
+        const { data, error } = await supabase
+          .from('obras')
+          .select('id, nome_obra')
+          .eq('cliente_id', formData.cliente_id);
+        if (!error) {
+          setObras(data);
+        }
+      } else {
+        setObras([]);
+      }
+    };
+    fetchObras();
+  }, [formData.cliente_id]);
+
+  useEffect(() => {
     const fetchClientes = async () => {
       const { data, error } = await supabase.from('clientes').select('id, nome_completo, razao_social');
       if (!error) setClientes(data);
@@ -80,6 +99,7 @@ const OrcamentoWizard = () => {
             codigo: data.codigo || '',
             descricao: data.descricao || '',
             cliente_id: data.cliente_id || '',
+            obra_id: data.obra_id || '',
             categoria: data.categoria || categoriasDeObra[0],
             prazo_entrega: data.prazo_entrega || '',
             tipo_licitacao: data.tipo_licitacao || '',
@@ -136,6 +156,7 @@ const OrcamentoWizard = () => {
               codigo: formData.codigo || null,
               descricao: formData.descricao,
               cliente_id: formData.cliente_id,
+              obra_id: formData.obra_id,
               categoria: formData.categoria,
               prazo_entrega: formData.prazo_entrega || null,
               tipo_licitacao: formData.tipo_licitacao || null,
@@ -234,6 +255,13 @@ const OrcamentoWizard = () => {
           <select name="cliente_id" value={formData.cliente_id} onChange={handleChange} required className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-gray-700 focus:outline-none focus:border-emerald-primary focus:ring-3 focus:ring-emerald-primary/20 w-full">
             <option value="" disabled>Selecione um cliente</option>
             {clientes.map(c => <option key={c.id} value={c.id}>{c.razao_social || c.nome_completo}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1 col-span-2">
+          <label className="text-sm font-medium mb-1">Obra</label>
+          <select name="obra_id" value={formData.obra_id} onChange={handleChange} required className="flex-1 min-w-0 py-2 px-3 text-base border border-gray-200 rounded-md bg-gray-50 transition-all duration-200 ease-in-out font-poppins text-gray-700 focus:outline-none focus:border-emerald-primary focus:ring-3 focus:ring-emerald-primary/20 w-full" disabled={!formData.cliente_id}>
+            <option value="" disabled>Selecione uma obra</option>
+            {obras.map(o => <option key={o.id} value={o.id}>{o.nome_obra}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1 col-span-1">

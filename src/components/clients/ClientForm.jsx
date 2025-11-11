@@ -54,8 +54,9 @@ const clientSchema = z.discriminatedUnion('tipo_pessoa', [
 export default function ClientForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const [tipoPessoa, setTipoPessoa] = useState('pj'); // Controla o tipo de pessoa para o formulário
+  const [files, setFiles] = useState([]);
+  const [status, setStatus] = useState('');
+  const [error, setError] = useState('');
 
   const { 
     register,
@@ -67,56 +68,17 @@ export default function ClientForm() {
   } = useForm({
     resolver: zodResolver(clientSchema),
     defaultValues: {
-      tipo_pessoa: 'pj', // Garante que o tipo_pessoa inicial seja 'pj'
-      nome_completo: '',
-      razao_social: '',
-      nome_fantasia: '',
-      cpf: '',
-      cnpj: '',
-      inscricao_estadual: '',
-      inscricao_municipal: '',
-      email: '',
-      telefone: '',
-      pessoa_contato: '',
-      cep: '',
-      logradouro: '',
-      numero: '',
-      complemento: '',
-      bairro: '',
-      cidade: '',
-      uf: '',
-      observacoes: '',
+      tipo_pessoa: 'pj',
     },
-    mode: 'onBlur', // Valida no blur e no submit
+    mode: 'onBlur',
   });
 
-  // Observa o tipo_pessoa para alternar o esquema de validação dinamicamente
-  const watchedTipoPessoa = watch('tipo_pessoa', tipoPessoa);
+  const watchedTipoPessoa = watch('tipo_pessoa', 'pj');
 
   useEffect(() => {
     const fetchClient = async () => {
       if (!id) {
-        reset({
-          tipo_pessoa: 'pj',
-          nome_completo: '',
-          razao_social: '',
-          nome_fantasia: '',
-          cpf: '',
-          cnpj: '',
-          inscricao_estadual: '',
-          inscricao_municipal: '',
-          email: '',
-          telefone: '',
-          pessoa_contato: '',
-          cep: '',
-          logradouro: '',
-          numero: '',
-          complemento: '',
-          bairro: '',
-          cidade: '',
-          uf: '',
-          observacoes: '',
-        }); // Reseta o formulário para valores iniciais
+        reset({ tipo_pessoa: 'pj' });
         return;
       }
 
@@ -128,10 +90,7 @@ export default function ClientForm() {
 
       if (error) {
         console.error(`Erro ao carregar cliente: ${error.message}`);
-        // Tratar erro de carregamento, talvez exibir mensagem ao usuário
       } else if (data) {
-        // Atualiza o tipo de pessoa e os valores do formulário
-        setTipoPessoa(data.tipo_pessoa);
         reset({ ...data, tipo_pessoa: data.tipo_pessoa });
       }
     };
@@ -139,50 +98,59 @@ export default function ClientForm() {
     fetchClient();
   }, [id, reset]);
 
-  // Atualiza o tipo de pessoa no formulário e reseta campos específicos
   const handleTipoPessoaChange = (tipo) => {
-    setTipoPessoa(tipo);
-    setValue('tipo_pessoa', tipo);
-    // Limpa campos específicos ao trocar o tipo de pessoa para evitar validação cruzada
-    if (tipo === 'pf') {
-      setValue('razao_social', '');
-      setValue('nome_fantasia', '');
-      setValue('cnpj', '');
-      setValue('inscricao_estadual', '');
-      setValue('inscricao_municipal', '');
-      setValue('pessoa_contato', '');
-    } else { // pj
-      setValue('nome_completo', '');
-      setValue('cpf', '');
-    }
+    setValue('tipo_pessoa', tipo, { shouldValidate: true });
+  };
+
+  const handleFileChange = (e) => {
+    setFiles(Array.from(e.target.files));
   };
 
   const onSubmit = async (data) => {
-    // Limpa campos que não pertencem ao tipo de pessoa atual antes de enviar
-    const submissionData = { ...data };
-    if (submissionData.tipo_pessoa === 'pf') {
-      delete submissionData.razao_social;
-      delete submissionData.nome_fantasia;
-      delete submissionData.cnpj;
-      delete submissionData.inscricao_estadual;
-      delete submissionData.inscricao_municipal;
-      delete submissionData.pessoa_contato;
-    } else { // pj
-      delete submissionData.nome_completo;
-      delete submissionData.cpf;
+    setStatus('Salvando...');
+    setError('');
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        setError('Erro: Usuário não autenticado.');
+        setStatus('');
+        return;
     }
 
-    const { error: submissionError } = id
-      ? await supabase.from('clientes').update(submissionData).eq('id', id)
-      : await supabase.from('clientes').insert(submissionData);
+    const submissionData = { ...data, user_id: user.id };
+    if (submissionData.tipo_pessoa === 'pf') {
+      Object.assign(submissionData, { razao_social: null, nome_fantasia: null, cnpj: null, inscricao_estadual: null, inscricao_municipal: null, pessoa_contato: null });
+    } else {
+      Object.assign(submissionData, { nome_completo: null, cpf: null });
+    }
+
+    const { data: savedClient, error: submissionError } = id
+      ? await supabase.from('clientes').update(submissionData).eq('id', id).select().single()
+      : await supabase.from('clientes').insert(submissionData).select().single();
 
     if (submissionError) {
-      console.error(`Erro ao salvar: ${submissionError.message}`);
-      // Exibir erro ao usuário
-    } else {
-      console.log(id ? 'Cliente atualizado com sucesso!' : 'Cliente salvo com sucesso!');
-      navigate('/clientes');
+      setError(`Erro ao salvar cliente: ${submissionError.message}`);
+      setStatus('');
+      return;
     }
+
+    if (files.length > 0) {
+      setStatus('Salvando anexos...');
+      for (const file of files) {
+        const { error: uploadError } = await supabase.storage
+          .from('documentos_clientes')
+          .upload(`${savedClient.id}/${file.name}`, file, {
+            upsert: true,
+          });
+        if (uploadError) {
+          setError(`Erro no upload do anexo ${file.name}: ${uploadError.message}`);
+          return; 
+        }
+      }
+    }
+
+    setStatus('Cliente salvo com sucesso!');
+    setTimeout(() => navigate('/clientes'), 1500);
   };
 
   return (
@@ -190,21 +158,9 @@ export default function ClientForm() {
       <h2 className="text-lg mt-0 mb-6 text-center">{id ? 'Editar Cliente' : 'Cadastro de Clientes'}</h2>
       
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex justify-center mb-6 border border-gray-200 rounded-md overflow-hidden">
-          <Button
-            type="button"
-            variant={watchedTipoPessoa === 'pf' ? 'primary' : 'secondary'}
-            onClick={() => handleTipoPessoaChange('pf')}
-          >
-            Pessoa Física
-          </Button>
-          <Button
-            type="button"
-            variant={watchedTipoPessoa === 'pj' ? 'primary' : 'secondary'}
-            onClick={() => handleTipoPessoaChange('pj')}
-          >
-            Pessoa Jurídica
-          </Button>
+        <div className="flex justify-center mb-6 border border-gray-200 rounded-md overflow-hidden w-fit mx-auto">
+          <Button type="button" variant={watchedTipoPessoa === 'pf' ? 'primary' : 'secondary'} onClick={() => handleTipoPessoaChange('pf')} className="rounded-none">Pessoa Física</Button>
+          <Button type="button" variant={watchedTipoPessoa === 'pj' ? 'primary' : 'secondary'} onClick={() => handleTipoPessoaChange('pj')} className="rounded-none">Pessoa Jurídica</Button>
         </div>
 
         {watchedTipoPessoa === 'pf' ? (
@@ -214,20 +170,22 @@ export default function ClientForm() {
         )}
 
         <EnderecoForm register={register} errors={errors} />
+        <AnexosForm handleFileChange={handleFileChange} />
         <ObservacoesForm register={register} errors={errors} />
 
         <div className="flex justify-end gap-4 mt-6">
-          <Link to="/clientes" className="inline-block px-6 py-3 rounded-md font-semibold border border-accent text-accent transition-all duration-200 ease-in-out hover:bg-accent/10 hover:-translate-y-px">Voltar</Link>
+          <Link to="/clientes" className="btn-secondary">Voltar</Link>
           <Button type="submit" disabled={isSubmitting} variant="primary">
             {isSubmitting ? 'Salvando...' : 'Salvar Cliente'}
           </Button>
         </div>
+        {status && <p className={`mt-4 text-center ${error ? 'text-red-600' : 'text-green-600'}`}>{status || error}</p>}
       </form>
     </div>
   );
 }
 
-// --- Sub-componentes adaptados para React Hook Form ---
+// --- Sub-componentes ---
 
 const PessoaFisicaForm = ({ register, errors }) => (
   <div className="mb-6">
@@ -270,7 +228,6 @@ const PessoaJuridicaForm = ({ register, errors }) => (
         <div className="flex flex-row items-center gap-2 col-span-6">
           <label htmlFor="nome_fantasia" className="text-sm font-medium flex-shrink-0">Nome Fantasia</label>
           <Input id="nome_fantasia" type="text" placeholder="Nome Fantasia" {...register('nome_fantasia')} />
-          {errors.nome_fantasia && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.nome_fantasia.message}</p>}
         </div>
         <div className="flex flex-row items-center gap-2 col-span-6">
           <label htmlFor="cnpj" className="text-sm font-medium flex-shrink-0">CNPJ</label>
@@ -285,7 +242,6 @@ const PessoaJuridicaForm = ({ register, errors }) => (
         <div className="flex flex-row items-center gap-2 col-span-4">
           <label htmlFor="pessoa_contato" className="text-sm font-medium flex-shrink-0">Pessoa de Contato</label>
           <Input id="pessoa_contato" type="text" placeholder="Nome do contato" {...register('pessoa_contato')} />
-          {errors.pessoa_contato && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.pessoa_contato.message}</p>}
         </div>
         <div className="flex flex-row items-center gap-2 col-span-4">
           <label htmlFor="email" className="text-sm font-medium flex-shrink-0">E-mail</label>
@@ -295,7 +251,6 @@ const PessoaJuridicaForm = ({ register, errors }) => (
         <div className="flex flex-row items-center gap-2 col-span-4">
           <label htmlFor="telefone" className="text-sm font-medium flex-shrink-0">Telefone</label>
           <Input id="telefone" type="text" placeholder="(00) 0000-0000" {...register('telefone')} />
-          {errors.telefone && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.telefone.message}</p>}
         </div>
       </div>
     </div>
@@ -305,12 +260,10 @@ const PessoaJuridicaForm = ({ register, errors }) => (
         <div className="flex flex-row items-center gap-2 col-span-6">
           <label htmlFor="inscricao_estadual" className="text-sm font-medium flex-shrink-0">Inscrição Estadual</label>
           <Input id="inscricao_estadual" type="text" placeholder="Número da Inscrição Estadual" {...register('inscricao_estadual')} />
-          {errors.inscricao_estadual && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.inscricao_estadual.message}</p>}
         </div>
         <div className="flex flex-row items-center gap-2 col-span-6">
           <label htmlFor="inscricao_municipal" className="text-sm font-medium flex-shrink-0">Inscrição Municipal</label>
           <Input id="inscricao_municipal" type="text" placeholder="Número da Inscrição Municipal" {...register('inscricao_municipal')} />
-          {errors.inscricao_municipal && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.inscricao_municipal.message}</p>}
         </div>
       </div>
     </div>
@@ -324,40 +277,45 @@ const EnderecoForm = ({ register, errors }) => (
       <div className="flex flex-row items-center gap-2 col-span-3">
         <label htmlFor="cep" className="text-sm font-medium flex-shrink-0">CEP</label>
         <Input id="cep" type="text" placeholder="00000-000" {...register('cep')} />
-        {errors.cep && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.cep.message}</p>}
       </div>
       <div className="flex flex-row items-center gap-2 col-span-9">
         <label htmlFor="logradouro" className="text-sm font-medium flex-shrink-0">Logradouro</label>
         <Input id="logradouro" type="text" placeholder="Rua, Avenida, etc." {...register('logradouro')} />
-        {errors.logradouro && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.logradouro.message}</p>}
       </div>
       <div className="flex flex-row items-center gap-2 col-span-2">
         <label htmlFor="numero" className="text-sm font-medium flex-shrink-0">Número</label>
         <Input id="numero" type="text" placeholder="Nº" {...register('numero')} />
-        {errors.numero && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.numero.message}</p>}
       </div>
       <div className="flex flex-row items-center gap-2 col-span-4">
         <label htmlFor="complemento" className="text-sm font-medium flex-shrink-0">Complemento</label>
         <Input id="complemento" type="text" placeholder="Apto, Bloco, etc." {...register('complemento')} />
-        {errors.complemento && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.complemento.message}</p>}
       </div>
       <div className="flex flex-row items-center gap-2 col-span-6">
         <label htmlFor="bairro" className="text-sm font-medium flex-shrink-0">Bairro</label>
         <Input id="bairro" type="text" placeholder="Bairro" {...register('bairro')} />
-        {errors.bairro && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.bairro.message}</p>}
       </div>
       <div className="flex flex-row items-center gap-2 col-span-9">
         <label htmlFor="cidade" className="text-sm font-medium flex-shrink-0">Cidade</label>
         <Input id="cidade" type="text" placeholder="Cidade" {...register('cidade')} />
-        {errors.cidade && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.cidade.message}</p>}
       </div>
       <div className="flex flex-row items-center gap-2 col-span-3">
         <label htmlFor="uf" className="text-sm font-medium flex-shrink-0">UF</label>
         <Input id="uf" type="text" placeholder="Estado" {...register('uf')} />
-        {errors.uf && <p className="text-red-500 text-xs mt-1 col-span-12">{errors.uf.message}</p>}
       </div>
     </div>
   </div>
+);
+
+const AnexosForm = ({ handleFileChange }) => (
+    <div className="mb-6">
+        <p className="font-semibold text-lg text-text-primary mb-4 border-b border-gray-200 pb-1.5">Anexos</p>
+        <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-12">
+                <label htmlFor="file-upload" className="text-sm font-medium text-gray-600 mb-1">Documentos</label>
+                <input id="file-upload" name="file-upload" type="file" multiple onChange={handleFileChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-accent-light file:text-accent-dark hover:file:bg-accent/20" />
+            </div>
+        </div>
+    </div>
 );
 
 const ObservacoesForm = ({ register, errors }) => (

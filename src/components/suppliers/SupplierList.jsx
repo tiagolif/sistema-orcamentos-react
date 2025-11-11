@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import Button from '../ui/Button';
 
@@ -67,6 +67,7 @@ const SupplierList = () => {
             <td className="py-3 px-4 text-sm font-normal text-gray-800">{supplier.cnpj || supplier.cpf}</td>
             <td className="py-3 px-4 text-sm font-normal text-gray-800">{supplier.email}</td>
             <td className="py-3 px-4 text-sm font-normal text-gray-800">
+              <Link to={`/fornecedores/visualizar/${supplier.id}`} className="btn-secondary">Visualizar</Link>
               <Button onClick={() => handleEdit(supplier.id)} variant="ghost">Editar</Button>
               <Button onClick={() => handleDelete(supplier.id)} variant="danger">Excluir</Button>
             </td>

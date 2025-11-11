@@ -9,8 +9,8 @@ const RecursosPage = () => {
     <div className="p-6"> {/* Replaced list-page-container with padding */}
       <div className="flex justify-between items-center mb-8"> {/* Replaced list-page-header with flexbox for alignment */}
         <h1 className="text-3xl font-bold text-slate-800">Gestão de Recursos</h1> {/* Tailwind for heading */}
-        <Link to="/recursos/novo">
-          <Button variant="primary"> {/* Using the Button component */}
+        <Link to="/cadastros/recursos/novo">
+          <Button variant="primary">
             Adicionar Recurso
           </Button>
         </Link>

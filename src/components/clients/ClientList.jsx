@@ -15,8 +15,7 @@ const ClientList = () => {
         console.error(`Erro ao excluir cliente: ${deleteError.message}`);
       } else {
         console.log('Cliente excluído com sucesso!');
-        // A more robust solution would involve useClients returning a refetch function
-        // or ClientList managing its own filtered list based on clients from the hook.
+        window.location.reload(); // Recarrega a página para atualizar a lista
       }
     }
   };
@@ -37,10 +36,11 @@ const ClientList = () => {
         </tr></thead>
       <tbody>{clients.map(client => (
           <tr key={client.id} className="border-b border-gray-200 transition-all duration-200 ease-in-out hover:bg-gray-100">
-            <td className="py-3 px-4 text-base">{client.name}</td>
-            <td className="py-3 px-4 text-base">{client.document}</td>
+            <td className="py-3 px-4 text-base">{client.razao_social || client.nome_completo}</td>
+            <td className="py-3 px-4 text-base">{client.cnpj || client.cpf}</td>
             <td className="py-3 px-4 text-base">{client.email}</td>
             <td className="py-3 px-4 text-base">
+              <Link to={`/clientes/visualizar/${client.id}`} className="inline-block px-2 py-1 mx-1 font-semibold rounded-md transition-all duration-200 ease-in-out text-secondary hover:bg-secondary/10">Visualizar</Link>
               <Link to={`/clientes/editar/${client.id}`} className="inline-block px-2 py-1 mx-1 font-semibold rounded-md transition-all duration-200 ease-in-out text-accent hover:bg-accent/10">Editar</Link>
               <Button onClick={() => handleDelete(client.id)} variant="danger">Excluir</Button>
             </td>

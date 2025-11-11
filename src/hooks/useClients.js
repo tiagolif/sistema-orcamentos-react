@@ -13,20 +13,13 @@ const useClients = () => {
 
       const { data, error } = await supabase
         .from('clientes')
-        .select('id, nome_completo, razao_social, cpf, cnpj, email');
+        .select('id, nome_completo, razao_social, cpf, cnpj, email, tipo_pessoa');
 
       if (error) {
         setError(error.message);
         console.error('Error fetching clients:', error);
       } else {
-        // Mapeia os dados usando as colunas corretas para o nome
-        const formattedData = (data || []).map(c => ({
-          id: c.id,
-          name: c.nome_completo || c.razao_social,
-          document: c.cpf || c.cnpj,
-          email: c.email || 'N/A',
-        }));
-        setClients(formattedData);
+        setClients(data || []);
       }
       setLoading(false);
     };
