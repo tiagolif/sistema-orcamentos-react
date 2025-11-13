@@ -1,5 +1,6 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { supabase } from './supabaseClient';
 import MainLayout from './layout/MainLayout.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import OrcamentosPage from './pages/OrcamentosPage.jsx';
@@ -37,11 +38,50 @@ import LancamentoDetalhePage from './pages/financeiro/LancamentoDetalhePage.jsx'
 import ApontamentosPage from './pages/ApontamentosPage.jsx';
 import FormApontamento from './pages/FormApontamento.jsx';
 import ApontamentoDetalhePage from './pages/ApontamentoDetalhePage.jsx';
+import RelatorioPagamentoPage from './pages/RelatorioPagamentoPage.jsx';
+import LoginPage from './pages/LoginPage.jsx';
 
 function App() {
+  const navigate = useNavigate();
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      if (!session) {
+        navigate('/login');
+      }
+      setLoading(false);
+    };
+
+    getSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('EVENTO DE AUTH:', event, session);
+      setSession(session);
+      if (event === 'SIGNED_IN') {
+        navigate('/');
+      } else if (event === 'SIGNED_OUT') {
+        navigate('/login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  if (loading) {
+    return <div>Carregando...</div>;
+  }
+
   return (
     <Routes>
-      <Route path="/" element={<MainLayout />}>
+      <Route path="/login" element={<LoginPage />} />
+      <Route 
+        path="/" 
+        element={session ? <MainLayout /> : <Navigate to="/login" />}
+      >
         <Route index element={<Dashboard />} />
         <Route path="orcamentos" element={<OrcamentosPage />} />
         <Route path="orcamentos/novo" element={<OrcamentoWizard />} />
@@ -67,6 +107,7 @@ function App() {
         <Route path="apontamentos/novo" element={<FormApontamento />} />
         <Route path="apontamentos/editar/:id" element={<FormApontamento />} />
         <Route path="apontamentos/visualizar/:id" element={<ApontamentoDetalhePage />} />
+        <Route path="apontamentos/relatorio" element={<RelatorioPagamentoPage />} />
         <Route path="composicoes" element={<ComposicoesPage />} />
         <Route path="composicoes/novo" element={<ComposicaoPage />} />
         <Route path="composicoes/editar/:id" element={<ComposicaoPage />} />
@@ -92,3 +133,4 @@ function App() {
 }
 
 export default App;
+

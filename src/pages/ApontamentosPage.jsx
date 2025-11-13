@@ -66,9 +66,16 @@ const ApontamentosPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-slate-800">Gestão de Apontamentos</h1>
-        <Button variant="primary" onClick={handleAddApontamento}>
-          Novo Apontamento
-        </Button>
+        <div className="flex gap-4">
+          <Link to="/apontamentos/relatorio">
+            <Button variant="secondary">
+              Gerar Relatório de Pagamento
+            </Button>
+          </Link>
+          <Button variant="primary" onClick={handleAddApontamento}>
+            Novo Apontamento
+          </Button>
+        </div>
       </div>
       
       <div className="bg-white p-6 rounded-lg shadow-md">
