@@ -45,23 +45,16 @@ import RegisterPage from './pages/RegisterPage.jsx';
 function App() {
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
-      setLoading(false);
-    };
-
-    getSession();
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('EVENTO DE AUTH:', event, session);
       setSession(session);
+
       if (event === 'SIGNED_IN') {
         navigate('/');
       } else if (event === 'SIGNED_OUT') {
@@ -71,10 +64,6 @@ function App() {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
-
-  if (loading) {
-    return <div>Carregando...</div>;
-  }
 
   return (
     <Routes>
