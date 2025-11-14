@@ -40,6 +40,7 @@ import FormApontamento from './pages/FormApontamento.jsx';
 import ApontamentoDetalhePage from './pages/ApontamentoDetalhePage.jsx';
 import RelatorioPagamentoPage from './pages/RelatorioPagamentoPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 
 function App() {
   const navigate = useNavigate();
@@ -78,6 +79,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route 
         path="/" 
         element={session ? <MainLayout /> : <Navigate to="/login" />}
