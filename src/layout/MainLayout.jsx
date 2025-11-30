@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import ThemeModal from '../components/ThemeModal'; // Import ThemeModal
-import ChatBot from '../components/ChatBot'; // Import ChatBot
 
 const MainLayout = () => {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true); // Inicia expandido
@@ -25,7 +24,6 @@ const MainLayout = () => {
         <Outlet />
       </main>
       <ThemeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-      <ChatBot />
     </div>
   );
 };

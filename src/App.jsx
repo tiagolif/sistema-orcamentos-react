@@ -41,6 +41,7 @@ import ApontamentoDetalhePage from './pages/ApontamentoDetalhePage.jsx';
 import RelatorioPagamentoPage from './pages/RelatorioPagamentoPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import AIChat from './components/AIChat.jsx';
 
 function App() {
   const navigate = useNavigate();
@@ -66,60 +67,65 @@ function App() {
   }, [navigate]);
 
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route 
-        path="/" 
-        element={session ? <MainLayout /> : <Navigate to="/login" />}
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="orcamentos" element={<OrcamentosPage />} />
-        <Route path="orcamentos/novo" element={<OrcamentoWizard />} />
-        <Route path="orcamentos/editar/:id" element={<OrcamentoWizard />} />
-        <Route path="orcamento/:id" element={<PaginaOrcamento />} />
-        <Route path="clientes" element={<Clientes />} />
-        <Route path="clientes/novo" element={<ClientForm />} />
-        <Route path="clientes/editar/:id" element={<ClientForm />} />
-        <Route path="clientes/visualizar/:id" element={<ClienteDetalhePage />} />
-        <Route path="fornecedores" element={<Fornecedores />} />
-        <Route path="fornecedores/novo" element={<SupplierForm />} />
-        <Route path="fornecedores/editar/:id" element={<SupplierForm />} />
-        <Route path="fornecedores/visualizar/:id" element={<FornecedorDetalhePage />} />
-        <Route path="cadastros/obras" element={<ObrasPage />} />
-        <Route path="cadastros/obras/novo" element={<NovaObraPage />} />
-        <Route path="cadastros/obras/editar/:id" element={<NovaObraPage />} />
-        <Route path="cadastros/obras/visualizar/:id" element={<ObraDetalhePage />} />
-        <Route path="cadastros/recursos" element={<RecursosPage />} />
-        <Route path="cadastros/recursos/novo" element={<RecursosForm />} />
-        <Route path="cadastros/recursos/editar/:id" element={<RecursosForm />} />
-        <Route path="cadastros/recursos/visualizar/:id" element={<RecursoDetalhePage />} />
-        <Route path="apontamentos" element={<ApontamentosPage />} />
-        <Route path="apontamentos/novo" element={<FormApontamento />} />
-        <Route path="apontamentos/editar/:id" element={<FormApontamento />} />
-        <Route path="apontamentos/visualizar/:id" element={<ApontamentoDetalhePage />} />
-        <Route path="apontamentos/relatorio" element={<RelatorioPagamentoPage />} />
-        <Route path="composicoes" element={<ComposicoesPage />} />
-        <Route path="composicoes/novo" element={<ComposicaoPage />} />
-        <Route path="composicoes/editar/:id" element={<ComposicaoPage />} />
-        <Route path="insumos" element={<InsumosPage />} />
-        <Route path="insumos/novo" element={<InsumoPage />} />
-        <Route path="insumos/editar/:id" element={<InsumoPage />} />
-        <Route path="bdi" element={<BdiPage />} />
-        <Route path="encargos-sociais" element={<EncargosSociaisPage />} />
-        <Route path="planejamentos" element={<PlanejamentosPage />} />
-        <Route path="compras" element={<ComprasPage />} />
-        <Route path="medicoes" element={<MedicoesPage />} />
-        <Route path="medicoes/boletim/:id" element={<BoletimDetalhePage />} />
-        <Route path="diario-de-obras" element={<DiarioDeObrasPage />} />
-        <Route path="bases-de-preco" element={<BasesDePrecoPage />} />
-        <Route path="financeiro/contas-a-pagar" element={<ContasPagarPage />} />
-        <Route path="financeiro/contas-a-pagar/visualizar/:id" element={<LancamentoDetalhePage />} />
-        <Route path="financeiro/contas-a-receber" element={<ContasReceberPage />} />
-        <Route path="financeiro/contas-a-receber/visualizar/:id" element={<LancamentoDetalhePage />} />
-        <Route path="financeiro/fluxo-de-caixa" element={<FluxoCaixaPage />} />
-      </Route>
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route 
+          path="/" 
+          element={session ? <MainLayout /> : <Navigate to="/login" />}
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="orcamentos" element={<OrcamentosPage />} />
+          <Route path="orcamentos/novo" element={<OrcamentoWizard />} />
+          <Route path="orcamentos/editar/:id" element={<OrcamentoWizard />} />
+          <Route path="orcamento/:id" element={<PaginaOrcamento />} />
+          <Route path="clientes" element={<Clientes />} />
+          <Route path="clientes/novo" element={<ClientForm />} />
+          <Route path="clientes/editar/:id" element={<ClientForm />} />
+          <Route path="clientes/visualizar/:id" element={<ClienteDetalhePage />} />
+          <Route path="fornecedores" element={<Fornecedores />} />
+          <Route path="fornecedores/novo" element={<SupplierForm />} />
+          <Route path="fornecedores/editar/:id" element={<SupplierForm />} />
+          <Route path="fornecedores/visualizar/:id" element={<FornecedorDetalhePage />} />
+          <Route path="cadastros/obras" element={<ObrasPage />} />
+          <Route path="cadastros/obras/novo" element={<NovaObraPage />} />
+          <Route path="cadastros/obras/editar/:id" element={<NovaObraPage />} />
+          <Route path="cadastros/obras/visualizar/:id" element={<ObraDetalhePage />} />
+          <Route path="cadastros/recursos" element={<RecursosPage />} />
+          <Route path="cadastros/recursos/novo" element={<RecursosForm />} />
+          <Route path="cadastros/recursos/editar/:id" element={<RecursosForm />} />
+          <Route path="cadastros/recursos/visualizar/:id" element={<RecursoDetalhePage />} />
+          <Route path="apontamentos" element={<ApontamentosPage />} />
+          <Route path="apontamentos/novo" element={<FormApontamento />} />
+          <Route path="apontamentos/editar/:id" element={<FormApontamento />} />
+          <Route path="apontamentos/visualizar/:id" element={<ApontamentoDetalhePage />} />
+          <Route path="apontamentos/relatorio" element={<RelatorioPagamentoPage />} />
+          <Route path="composicoes" element={<ComposicoesPage />} />
+          <Route path="composicoes/novo" element={<ComposicaoPage />} />
+          <Route path="composicoes/editar/:id" element={<ComposicaoPage />} />
+          <Route path="insumos" element={<InsumosPage />} />
+          <Route path="insumos/novo" element={<InsumoPage />} />
+          <Route path="insumos/editar/:id" element={<InsumoPage />} />
+          <Route path="bdi" element={<BdiPage />} />
+          <Route path="encargos-sociais" element={<EncargosSociaisPage />} />
+          <Route path="planejamentos" element={<PlanejamentosPage />} />
+          <Route path="compras" element={<ComprasPage />} />
+          <Route path="medicoes" element={<MedicoesPage />} />
+          <Route path="medicoes/boletim/:id" element={<BoletimDetalhePage />} />
+          <Route path="diario-de-obras" element={<DiarioDeObrasPage />} />
+          <Route path="bases-de-preco" element={<BasesDePrecoPage />} />
+          <Route path="financeiro/contas-a-pagar" element={<ContasPagarPage />} />
+          <Route path="financeiro/contas-a-pagar/visualizar/:id" element={<LancamentoDetalhePage />} />
+          <Route path="financeiro/contas-a-receber" element={<ContasReceberPage />} />
+          <Route path="financeiro/contas-a-receber/visualizar/:id" element={<LancamentoDetalhePage />} />
+          <Route path="financeiro/fluxo-de-caixa" element={<FluxoCaixaPage />} />
+        </Route>
+        {/* Rota Coringa para redirecionar URLs não encontradas, como o callback do Supabase */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <AIChat />
+    </>
   );
 }
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function ChatBot() {
+export default function AIChat() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
