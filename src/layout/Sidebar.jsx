@@ -12,8 +12,8 @@ const Sidebar = ({ isSidebarExpanded, toggleSidebar, isModalOpen, setIsModalOpen
   };
 
   return (
-    <div className={`bg-primary h-screen p-4 text-white transition-all duration-300 ease-in-out overflow-y-auto overflow-x-hidden flex-shrink-0 ${isSidebarExpanded ? 'w-60' : 'w-20'}`}> {/* sidebar */}
-      <div className="flex justify-between items-center pb-4 mb-4 border-b border-base-border"> {/* sidebar-header */}
+<div className={`bg-primary h-screen text-white transition-all duration-300 ease-in-out flex flex-col flex-shrink-0 ${isSidebarExpanded ? 'w-60' : 'w-20'}`}> {/* sidebar */}
+      <div className="flex justify-between items-center p-4 pb-4 border-b border-base-border flex-shrink-0"> {/* sidebar-header */}
         <div className="flex items-center gap-3"> {/* logo-section */}
           <img src="/hidrosantec_logo.png" alt="Logo Hidrosantec" className="w-10 h-auto" /> {/* sidebar-logo */}
           <h2 className={`text-base font-semibold text-white ${isSidebarExpanded ? 'block' : 'hidden'}`}>Hidrosantec</h2> {/* sidebar-company-name */}
@@ -22,7 +22,7 @@ const Sidebar = ({ isSidebarExpanded, toggleSidebar, isModalOpen, setIsModalOpen
           <i className="fa-solid fa-ellipsis-vertical"></i>
         </Button>
       </div>
-      <nav className="sidebar-nav">
+      <nav className="sidebar-nav flex-grow p-4 overflow-y-auto">
         <ul>
           {/* Link Direto */}
           <li>
@@ -68,7 +68,7 @@ const Sidebar = ({ isSidebarExpanded, toggleSidebar, isModalOpen, setIsModalOpen
           </li>
 
           <li><NavLink to="/planejamentos" className={`flex items-center gap-4 py-2 px-4 text-gray-200 rounded-md font-medium transition-all duration-300 ease-in-out whitespace-nowrap w-full ${location.pathname === '/planejamentos' ? 'bg-accent text-white font-semibold' : 'hover:bg-slate-600 hover:text-white'}`}><i className="fa-solid fa-calendar-days"></i><span className={`${isSidebarExpanded ? 'block' : 'hidden'}`}>Planejamentos</span></NavLink></li>
-          <li><NavLink to="/diario-de-obras" className={`flex items-center gap-4 py-2 px-4 text-gray-200 rounded-md font-medium transition-all duration-300 ease-in-out whitespace-nowrap w-full ${location.pathname === '/diario-de-obras' ? 'bg-accent text-white font-semibold' : 'hover:bg-slate-600 hover:text-white'}`}><i className="fa-solid fa-book-open"></i><span className={`${isSidebarExpanded ? 'block' : 'hidden'}`}>Diário de Obras</span></NavLink></li>
+
           <li><NavLink to="/apontamentos" className={`flex items-center gap-4 py-2 px-4 text-gray-200 rounded-md font-medium transition-all duration-300 ease-in-out whitespace-nowrap w-full ${location.pathname === '/apontamentos' ? 'bg-accent text-white font-semibold' : 'hover:bg-slate-600 hover:text-white'}`}><i className="fa-solid fa-clipboard-list"></i><span className={`${isSidebarExpanded ? 'block' : 'hidden'}`}>Apontamentos</span></NavLink></li>
           <li><NavLink to="/medicoes" className={`flex items-center gap-4 py-2 px-4 text-gray-200 rounded-md font-medium transition-all duration-300 ease-in-out whitespace-nowrap w-full ${location.pathname === '/medicoes' ? 'bg-accent text-white font-semibold' : 'hover:bg-slate-600 hover:text-white'}`}><i className="fa-solid fa-ruler-combined"></i><span className={`${isSidebarExpanded ? 'block' : 'hidden'}`}>Medições</span></NavLink></li>
           <li><NavLink to="/compras" className={`flex items-center gap-4 py-2 px-4 text-gray-200 rounded-md font-medium transition-all duration-300 ease-in-out whitespace-nowrap w-full ${location.pathname === '/compras' ? 'bg-accent text-white font-semibold' : 'hover:bg-slate-600 hover:text-white'}`}><i className="fa-solid fa-shopping-cart"></i><span className={`${isSidebarExpanded ? 'block' : 'hidden'}`}>Compras</span></NavLink></li>
@@ -91,8 +91,24 @@ const Sidebar = ({ isSidebarExpanded, toggleSidebar, isModalOpen, setIsModalOpen
               <li><NavLink to="/encargos-sociais" className={`flex items-center gap-4 py-1.5 px-3 text-gray-300 rounded-md font-medium transition-all duration-300 ease-in-out whitespace-nowrap w-full text-xs ${location.pathname === '/encargos-sociais' ? 'bg-accent text-white font-semibold' : 'hover:bg-slate-600 hover:text-white'}`}><span className={`${isSidebarExpanded ? 'block' : 'hidden'}`}>Encargos Sociais</span></NavLink></li>
             </ul>
           </li>
+        </ul>
+      </nav>
+
+      {/* Footer Actions */}
+      <div className="flex-shrink-0 p-4 border-t border-base-border">
+        <ul>
+          {/* Link para Alterar Senha */}
+          <li className="mb-2">
+            <NavLink 
+              to="/update-password" 
+              className={`flex items-center gap-4 py-2 px-4 text-gray-200 rounded-md font-medium transition-all duration-300 ease-in-out whitespace-nowrap w-full ${location.pathname === '/update-password' ? 'bg-accent text-white font-semibold' : 'hover:bg-slate-600 hover:text-white'}`}
+            >
+              <i className="fa-solid fa-key"></i>
+              <span className={`${isSidebarExpanded ? 'block' : 'hidden'}`}>Alterar Senha</span>
+            </NavLink>
+          </li>
           {/* Theme Settings Button */}
-          <li className="mt-auto"> {/* Use mt-auto to push it to the bottom */}
+          <li>
             <Button
               variant="ghost"
               onClick={() => setIsModalOpen(true)}
@@ -103,8 +119,6 @@ const Sidebar = ({ isSidebarExpanded, toggleSidebar, isModalOpen, setIsModalOpen
             </Button>
           </li>
         </ul>
-      </nav>
-      <div className="p-4 border-t border-base-border">
       </div>
     </div>
   );

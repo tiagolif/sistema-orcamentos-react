@@ -18,7 +18,6 @@ import EncargosSociaisPage from './pages/EncargosSociaisPage.jsx';
 import PlanejamentosPage from './pages/PlanejamentosPage.jsx';
 import ComprasPage from './pages/ComprasPage.jsx';
 import MedicoesPage from './pages/MedicoesPage.jsx';
-import DiarioDeObrasPage from './pages/DiarioDeObrasPage.jsx';
 import BasesDePrecoPage from './pages/BasesDePrecoPage.jsx';
 import ClientForm from './components/clients/ClientForm.jsx';
 import SupplierForm from './components/suppliers/SupplierForm.jsx';
@@ -41,7 +40,8 @@ import ApontamentoDetalhePage from './pages/ApontamentoDetalhePage.jsx';
 import RelatorioPagamentoPage from './pages/RelatorioPagamentoPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
-import AIChat from './components/AIChat.jsx';
+import UpdatePassword from './pages/UpdatePassword.jsx';
+// import AIChat from './components/AIChat.jsx';
 
 function App() {
   const navigate = useNavigate();
@@ -57,6 +57,10 @@ function App() {
       setSession(session);
 
       if (event === 'SIGNED_IN') {
+        // Se o usuário acabou de logar e não tem senha (ex: link mágico),
+        // podemos redirecioná-lo para a página de atualização de senha.
+        // Esta é uma lógica opcional que pode ser adicionada.
+        // Por enquanto, o comportamento padrão é ir para o dashboard.
         navigate('/');
       } else if (event === 'SIGNED_OUT') {
         navigate('/login');
@@ -71,6 +75,10 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route 
+          path="/update-password" 
+          element={session ? <UpdatePassword /> : <Navigate to="/login" />} 
+        />
         <Route 
           path="/" 
           element={session ? <MainLayout /> : <Navigate to="/login" />}
@@ -113,7 +121,6 @@ function App() {
           <Route path="compras" element={<ComprasPage />} />
           <Route path="medicoes" element={<MedicoesPage />} />
           <Route path="medicoes/boletim/:id" element={<BoletimDetalhePage />} />
-          <Route path="diario-de-obras" element={<DiarioDeObrasPage />} />
           <Route path="bases-de-preco" element={<BasesDePrecoPage />} />
           <Route path="financeiro/contas-a-pagar" element={<ContasPagarPage />} />
           <Route path="financeiro/contas-a-pagar/visualizar/:id" element={<LancamentoDetalhePage />} />
@@ -121,10 +128,11 @@ function App() {
           <Route path="financeiro/contas-a-receber/visualizar/:id" element={<LancamentoDetalhePage />} />
           <Route path="financeiro/fluxo-de-caixa" element={<FluxoCaixaPage />} />
         </Route>
+
         {/* Rota Coringa para redirecionar URLs não encontradas, como o callback do Supabase */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <AIChat />
+      {/* <AIChat /> */}
     </>
   );
 }
